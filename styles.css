@@ -5,6 +5,7 @@
 :root {
   --black: #050505;
   --white: #f4f2ed;
+  --cream: #f4f2ed;
   --muted: #979797;
   --red: #ff0000;
   --line: rgba(255, 255, 255, .14);
@@ -28,7 +29,8 @@ body {
   background: var(--black);
   color: var(--white);
   font-family: Inter, sans-serif;
-  overflow-x: hidden;
+  height: 100svh;
+  overflow: hidden;
 }
 
 
@@ -47,135 +49,14 @@ body {
 
 
 /* ============================================================
-   HEADER / NAV
+   UI BASICS
    ============================================================ */
-
-.header {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 100;
-  height: 76px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 4vw;
-  border-bottom: 1px solid transparent;
-  transition: .35s;
-}
-
-.header.scrolled {
-  background: rgba(5, 5, 5, .86);
-  backdrop-filter: blur(18px);
-  border-color: var(--line);
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  flex: 0 0 auto;
-}
-
-.logo img {
-  display: block;
-  width: auto;
-  height: 42px;
-  object-fit: contain;
-}
-
-.nav {
-  display: flex;
-  gap: 30px;
-}
-
-.nav a,
-.social a,
-footer a {
-  font: 500 11px/1 'IBM Plex Mono', monospace;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: white;
-  text-decoration: none;
-}
-
-.nav a:hover,
-.social a:hover,
-footer a:hover {
-  color: var(--red);
-}
-
-.menu-toggle {
-  display: none;
-  background: none;
-  border: 0;
-}
-
-
-/* ============================================================
-   HERO
-   ============================================================ */
-
-.hero {
-  height: 100svh;
-  min-height: 650px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 9vw 8vw;
-  overflow: hidden;
-}
-
-.hero-image,
-.contact-photo {
-  position: absolute;
-  inset: -5%;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  will-change: transform;
-}
-
-.hero-image {
-  background-image: url('assets/sls-101.webp');
-  background-position: center 47%;
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(0, 0, 0, .93) 0%, rgba(0, 0, 0, .55) 46%, rgba(0, 0, 0, .12)),
-    linear-gradient(0deg, rgba(0, 0, 0, .68), transparent 48%);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-}
 
 .kicker {
   font: 600 11px/1.3 'IBM Plex Mono', monospace;
   letter-spacing: .24em;
   text-transform: uppercase;
   color: var(--red);
-}
-
-.hero h1 {
-  font-size: clamp(6rem, 17vw, 14rem);
-  line-height: .74;
-  letter-spacing: -.095em;
-  margin: 30px 0 36px;
-}
-
-.hero-sub {
-  font: 500 clamp(1rem, 2vw, 1.45rem)/1 'IBM Plex Mono', monospace;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 45px;
 }
 
 .btn {
@@ -195,50 +76,380 @@ footer a:hover {
   color: #090909;
 }
 
-.secondary {
-  background: var(--red);
-  border: 1px solid var(--red);
-  color: #090909;
-}
-
 .btn:hover {
   transform: translateY(-3px);
 }
 
-.hero-meta {
-  position: absolute;
-  z-index: 2;
-  left: 4vw;
-  right: 4vw;
-  bottom: 28px;
-  display: flex;
-  justify-content: space-between;
-  font: 500 9px/1 'IBM Plex Mono', monospace;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: #aaa;
-}
 
-.scroll-cue {
-  position: absolute;
-  right: 4vw;
-  bottom: 74px;
-  z-index: 2;
+.social a,
+.stage-links a {
+  font: 500 10px/1 'IBM Plex Mono', monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
   color: white;
   text-decoration: none;
-  font: 500 9px/1 'IBM Plex Mono', monospace;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  writing-mode: vertical-rl;
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
-.scroll-cue span {
-  height: 45px;
-  width: 1px;
-  background: var(--red);
+.social a:hover,
+.stage-links a:hover {
+  color: var(--red);
+}
+
+
+/* ============================================================
+   STAGE — single full-screen view
+   ============================================================ */
+
+.stage {
+  --gutter: clamp(20px, 4vw, 56px);
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--black) url('assets/notjust-reveal-poster.jpg') center/cover no-repeat;
+}
+
+.stage-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Keeps the UI legible over the white studio shots without darkening the
+   centre of the frame, where the video's subtitles and logo appear. */
+.stage-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .55), transparent 22%),
+    linear-gradient(0deg, rgba(0, 0, 0, .6), transparent 34%),
+    linear-gradient(90deg, rgba(0, 0, 0, .55), transparent 42%);
+}
+
+.stage-top {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 26px) var(--gutter) 0;
+}
+
+.stage-mark img {
+  display: block;
+  width: clamp(120px, 11vw, 160px);
+  height: auto;
+}
+
+.stage-controls {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.stage-book {
+  padding: 15px 20px;
+  gap: 22px;
+}
+
+.sound-toggle,
+.menu-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: white;
+  font: 600 10px/1 'IBM Plex Mono', monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.sound-toggle:hover,
+.menu-toggle:hover {
+  color: var(--red);
+}
+
+.sound-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 11px;
+}
+
+.sound-bars i {
+  width: 2px;
+  height: 3px;
+  background: currentColor;
+  transition: height .3s;
+}
+
+.sound-toggle[aria-pressed="true"] .sound-bars i {
+  animation: sound-bar .9s ease-in-out infinite alternate;
+}
+
+.sound-toggle[aria-pressed="true"] .sound-bars i:nth-child(2) {
+  animation-delay: -.3s;
+}
+
+.sound-toggle[aria-pressed="true"] .sound-bars i:nth-child(3) {
+  animation-delay: -.6s;
+}
+
+@keyframes sound-bar {
+  from { height: 3px; }
+  to { height: 11px; }
+}
+
+.menu-toggle {
+  display: none;
+}
+
+.stage-menu {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 26px);
+  left: 50%;
+  z-index: 3;
+  height: calc(clamp(120px, 11vw, 160px) * .4);
+  display: flex;
+  align-items: center;
+  gap: clamp(22px, 2.4vw, 40px);
+  transform: translateX(-50%);
+}
+
+.stage-menu a {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 6px 0;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  transition: color .2s;
+}
+
+/* Numbers only appear in the stacked overlay menu (tablet and mobile). */
+.stage-menu a span {
+  display: none;
+  min-width: 2.2em;
+  font: 500 10px/1 'IBM Plex Mono', monospace;
+  letter-spacing: .08em;
+  color: var(--red);
+}
+
+.stage-menu a:hover,
+.stage-menu a:focus-visible,
+.stage-menu a[aria-current="true"] {
+  color: var(--red);
+}
+
+.menu-book {
+  display: none;
+}
+
+.stage-foot {
+  position: absolute;
+  inset: auto var(--gutter) calc(env(safe-area-inset-bottom, 0px) + 26px);
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  pointer-events: none;
+}
+
+.stage-foot > * {
+  pointer-events: auto;
+}
+
+.stage-foot p {
+  margin: 0;
+  font: 500 9px/1 'IBM Plex Mono', monospace;
+  letter-spacing: .08em;
+  color: rgba(255, 255, 255, .6);
+}
+
+.stage-links {
+  display: flex;
+  gap: 24px;
+  order: 2;
+}
+
+
+/* ============================================================
+   DRAWER — panels with the full press-kit content
+   ============================================================ */
+
+.drawer {
+  --pad: clamp(22px, 5vw, 96px);
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 100%;
+  height: 75dvh;
+  max-height: 75dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, .14);
+  background: var(--black);
+  color: var(--white);
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform .55s cubic-bezier(.2, .7, .2, 1);
+}
+
+.drawer[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer.is-open {
+  transform: none;
+}
+
+.drawer::backdrop {
+  background: rgba(0, 0, 0, 0);
+  transition: background .55s;
+}
+
+.drawer.is-open::backdrop {
+  background: rgba(0, 0, 0, .5);
+}
+
+.drawer-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px var(--pad);
+  border-bottom: 1px solid rgba(255, 255, 255, .14);
+}
+
+.drawer-label {
+  margin: 0;
+  font: 600 11px/1 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.drawer-close {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: none;
+  color: white;
+  font: 600 10px/1 'IBM Plex Mono', monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.drawer-close span {
+  font: 300 28px/.6 Inter, sans-serif;
+}
+
+.drawer-close:hover {
+  color: var(--red);
+}
+
+.drawer-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overscroll-behavior: contain;
+}
+
+.panel {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panel > :last-child {
+  flex: 1 0 auto;
+}
+
+.drawer .section {
+  padding: 56px var(--pad) 64px;
+}
+
+.drawer .panel > .section:first-child {
+  border-top: 0;
+}
+
+.drawer .section-title {
+  margin-bottom: 48px;
+}
+
+.drawer .section h2 {
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+}
+
+.drawer .about-layout {
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+
+.drawer .artist-image {
+  min-height: 520px;
+}
+
+.drawer .manifesto {
+  margin: 64px calc(-1 * var(--pad)) 48px;
+  padding-inline: var(--pad);
+}
+
+.drawer .sound-grid article {
+  padding: 32px;
+  min-height: 250px;
+}
+
+.drawer .sound-grid h3 {
+  margin-top: 60px;
+}
+
+.drawer .performance-photo {
+  top: 32px;
+  min-height: 0;
+}
+
+.drawer .performance-photo img {
+  height: 480px;
+  min-height: 0;
+}
+
+.drawer .gallery-grid {
+  grid-template-rows: repeat(2, 320px) 540px;
+}
+
+.drawer .gallery-item.wide {
+  min-height: 0;
+}
+
+.drawer .contact {
+  min-height: 100%;
+  padding: 72px var(--pad);
+}
+
+.drawer .contact h2 {
+  font-size: clamp(3rem, 7vw, 6rem);
 }
 
 
@@ -265,7 +476,7 @@ footer a:hover {
 }
 
 .section h2 {
-  font-size: clamp(3.6rem, 8vw, 8.6rem);
+  font-size: clamp(3rem, 6.5vw, 6.5rem);
   line-height: .9;
   letter-spacing: -.07em;
   margin: 20px 0 0;
@@ -276,6 +487,12 @@ footer a:hover {
 /* ============================================================
    ABOUT
    ============================================================ */
+
+.about,
+.rider {
+  background: var(--black);
+  color: var(--white);
+}
 
 .about-layout {
   display: grid;
@@ -310,14 +527,32 @@ footer a:hover {
 .bio p {
   font-size: 16px;
   line-height: 1.9;
-  color: #aaa;
+  color: #5b5754;
 }
 
 .bio .lead {
-  font-size: clamp(1.5rem, 2.4vw, 2.7rem);
-  line-height: 1.34;
+  font-size: 16px;
+  line-height: 1.9;
+  color: #171514;
+  font-weight: 600;
+}
+
+.inline-wordmark {
+  display: inline-block;
+  width: 3.1em;
+  height: auto;
+  margin: 0 .08em;
+  vertical-align: -.16em;
+}
+
+.about .bio p {
+  color: #aaa;
+}
+
+.about .bio .lead {
   color: white;
-  letter-spacing: -.035em;
+  border-left: 2px solid var(--red);
+  padding-left: 18px;
 }
 
 
@@ -358,7 +593,18 @@ footer a:hover {
    ============================================================ */
 
 .sound {
-  background: #090909;
+  --line: rgba(5, 5, 5, .16);
+  background: var(--cream);
+  color: var(--black);
+}
+
+.sound .section-index,
+.sound .sound-grid p {
+  color: #5b5754;
+}
+
+.sound .manifesto p {
+  -webkit-text-stroke-color: rgba(5, 5, 5, .35);
 }
 
 .sound-grid {
@@ -447,8 +693,10 @@ footer a:hover {
   margin-bottom: 12px;
 }
 
-.feature-mix strong {
-  font-size: clamp(1.6rem, 3vw, 3rem);
+.feature-wordmark {
+  display: block;
+  width: clamp(150px, 21vw, 240px);
+  height: auto;
 }
 
 .play-circle {
@@ -753,10 +1001,6 @@ footer a:hover {
    TECHNICAL RIDER
    ============================================================ */
 
-.rider {
-  background: #090909;
-}
-
 .rider-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -783,7 +1027,7 @@ footer a:hover {
 
 .rider-quantity {
   color: var(--red);
-  font: 600 12px/1 'IBM Plex Mono', monospace;
+  font: 600 14px/1 'IBM Plex Mono', monospace;
   letter-spacing: .08em;
 }
 
@@ -802,8 +1046,9 @@ footer a:hover {
 }
 
 .contact-photo {
-  background-image: url('assets/sls-88.webp');
-  background-position: center 40%;
+  position: absolute;
+  inset: 0;
+  background: url('assets/sls-88.webp') center 40%/cover no-repeat;
 }
 
 .contact-overlay {
@@ -849,30 +1094,6 @@ footer a:hover {
   display: flex;
   gap: 30px;
   margin-top: 55px;
-}
-
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
-
-footer {
-  height: 100px;
-  padding: 0 4vw;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid var(--line);
-}
-
-footer .logo img {
-  height: 34px;
-  opacity: .82;
-}
-
-footer p {
-  font: 500 9px/1 'IBM Plex Mono', monospace;
-  color: #555;
 }
 
 
@@ -943,15 +1164,6 @@ footer p {
    ============================================================ */
 
 @media (max-width: 1000px) {
-
-  .nav {
-    gap: 18px;
-  }
-
-  .nav a {
-    font-size: 9px;
-  }
-
   .performance-layout {
     grid-template-columns: 1fr;
   }
@@ -966,6 +1178,9 @@ footer p {
     min-height: 560px;
   }
 
+  .drawer .performance-photo {
+    top: auto;
+  }
 }
 
 
@@ -974,78 +1189,6 @@ footer p {
    ============================================================ */
 
 @media (max-width: 850px) {
-
-  .header {
-    height: 66px;
-  }
-
-  .logo img {
-    height: 34px;
-  }
-
-  .menu-toggle {
-    display: block;
-    position: relative;
-    z-index: 2;
-    width: 32px;
-    height: 30px;
-  }
-
-  .menu-toggle span {
-    position: absolute;
-    width: 25px;
-    height: 1px;
-    background: white;
-    left: 3px;
-    top: 10px;
-  }
-
-  .menu-toggle span + span {
-    top: 19px;
-  }
-
-  .nav {
-    position: fixed;
-    inset: 0;
-    background: #050505;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 36px;
-    transform: translateX(100%);
-    transition: .35s;
-  }
-
-  .nav.open {
-    transform: none;
-  }
-
-  .nav a {
-    font-size: 18px;
-  }
-
-  .hero {
-    padding: 100px 7vw;
-  }
-
-  .hero h1 {
-    font-size: 29vw;
-  }
-
-  .hero-image {
-    background-position: 62% center;
-  }
-
-  .hero-overlay {
-    background: linear-gradient(0deg, rgba(0, 0, 0, .92), rgba(0, 0, 0, .18) 75%);
-  }
-
-  .hero-meta,
-  .scroll-cue {
-    display: none;
-  }
-
   .section {
     padding: 105px 6vw;
   }
@@ -1179,21 +1322,10 @@ footer p {
     background: rgba(0, 0, 0, .72);
   }
 
-  footer {
-    height: auto;
-    padding: 35px 6vw;
-    gap: 25px;
-    flex-direction: column;
-  }
-
-  .actions {
-    flex-wrap: wrap;
-  }
 
   .btn {
     gap: 20px;
   }
-
 }
 
 
@@ -1316,12 +1448,10 @@ footer p {
    ============================================================ */
 
 @media (max-width: 1100px) {
-
   .map-label text {
     font-size: 15px;
     stroke-width: 5px;
   }
-
 }
 
 
@@ -1330,7 +1460,6 @@ footer p {
    ============================================================ */
 
 @media (max-width: 850px) {
-
   .world-map-wrap {
     padding: 0;
     margin-inline: -6vw;
@@ -1358,7 +1487,6 @@ footer p {
   .international .section-title {
     margin-bottom: 42px;
   }
-
 }
 
 
@@ -1634,54 +1762,6 @@ html {
 
 
 /* ============================================================
-   
-   ============================================================ */
-
-.to-top {
-  position: fixed;
-  right: 4vw;
-  bottom: 34px;
-  z-index: 90;
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line);
-  background: rgba(5, 5, 5, .78);
-  backdrop-filter: blur(14px);
-  color: var(--white);
-  font: 400 18px/1 'IBM Plex Mono', monospace;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(14px);
-  transition: opacity .35s, transform .35s, visibility .35s, background .25s, color .25s;
-}
-
-.to-top.show {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-}
-
-.to-top:hover {
-  background: var(--red);
-  border-color: var(--red);
-  color: #090909;
-  transform: translateY(-3px);
-}
-
-@media (max-width: 850px) {
-  .to-top {
-    right: 20px;
-    bottom: 20px;
-    width: 44px;
-    height: 44px;
-  }
-}
-
-
-/* ============================================================
    CONSENT (GDPR)
    ============================================================ */
 
@@ -1734,4 +1814,126 @@ html {
   .consent-note {
     padding-left: 0;
   }
+}
+
+
+/* ============================================================
+   STAGE + DRAWER — MAX 850px
+   ============================================================ */
+
+@media (max-width: 850px) {
+
+  .drawer .about-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .drawer .artist-image {
+    min-height: 440px;
+  }
+
+  .drawer .gallery-grid {
+    grid-template-rows: none;
+    grid-auto-rows: 62svh;
+  }
+
+  .drawer .contact {
+    padding: 64px var(--pad);
+  }
+
+}
+
+
+/* ============================================================
+   STAGE — MAX 1180px (top menu no longer fits; use the overlay)
+   ============================================================ */
+
+@media (max-width: 1180px) {
+
+  .menu-toggle {
+    display: flex;
+    position: relative;
+    z-index: 5;
+  }
+
+  .stage-menu {
+    inset: 0;
+    z-index: 4;
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    padding: 90px var(--gutter) 100px;
+    background: rgba(5, 5, 5, .92);
+    backdrop-filter: blur(14px);
+    transform: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .3s, visibility .3s;
+  }
+
+  .stage-menu.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .stage-menu a {
+    font-size: clamp(2.1rem, 7vw, 3.4rem);
+    letter-spacing: -.05em;
+    padding: 6px 0;
+  }
+
+  .stage-menu a span {
+    display: inline;
+  }
+
+  .stage-top,
+  .stage-foot {
+    z-index: 5;
+  }
+
+}
+
+
+/* ============================================================
+   STAGE + DRAWER — MAX 700px
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+  /* The video's subtitles sit at 79–82% of the frame height. On phones the
+     video is made taller than the screen and pinned to the top, so the frame
+     ends at ~76% and the subtitle band falls outside the view. */
+  .stage-video {
+    height: calc(100% / .76);
+    object-position: center top;
+  }
+
+  .stage-book {
+    display: none;
+  }
+
+  .stage-controls {
+    gap: 26px;
+  }
+
+  .menu-book {
+    display: flex;
+    margin-top: 34px;
+  }
+
+  .stage-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .stage-links {
+    order: 0;
+  }
+
+  .stage-menu:not(.open) ~ .stage-foot {
+    display: none;
+  }
+
 }

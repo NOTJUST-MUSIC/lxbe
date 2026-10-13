@@ -15,8 +15,6 @@ document.querySelectorAll('[data-country-map]').forEach(el=>{
 });
 const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.13});document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 const statObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(!e.isIntersecting)return;const el=e.target,target=+el.dataset.count,suffix=el.dataset.suffix||'';let start=0;const timer=setInterval(()=>{start++;el.textContent=start+suffix;if(start>=target)clearInterval(timer)},80);statObserver.unobserve(el)}),{threshold:.7});document.querySelectorAll('[data-count]').forEach(el=>statObserver.observe(el));
-const header=document.querySelector('.header'),toggle=document.querySelector('.menu-toggle'),nav=document.querySelector('.nav');addEventListener('scroll',()=>header.classList.toggle('scrolled',scrollY>30));toggle.addEventListener('click',()=>{const open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',open)});nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');toggle.setAttribute('aria-expanded','false')}));
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!reduced){addEventListener('scroll',()=>document.querySelectorAll('.parallax').forEach(el=>{const r=el.parentElement.getBoundingClientRect(),speed=Number(el.dataset.speed||.1);if(r.bottom>0&&r.top<innerHeight)el.style.transform=`translate3d(0,${-r.top*speed}px,0) scale(1.08)`}),{passive:true})}
 const lightbox=document.querySelector('#lightbox'),lightboxImg=lightbox.querySelector('img');document.querySelectorAll('.gallery-item').forEach(btn=>btn.addEventListener('click',()=>{lightboxImg.src=btn.dataset.full;lightboxImg.alt=btn.querySelector('img').alt;lightbox.showModal()}));lightbox.querySelector('button').addEventListener('click',()=>lightbox.close());lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.close()});addEventListener('keydown',e=>{if(e.key==='Escape'&&lightbox.open)lightbox.close()});
 
 /* ---------- BOOKING MODAL ---------- */
@@ -44,7 +42,7 @@ bookingForm.addEventListener('submit',async e=>{
   data.consent=bookingForm.consent.checked?'Yes':'No';
   data.consent_text=bookingForm.querySelector('.consent span').textContent.trim();
   data.consent_timestamp=new Date().toISOString();
-  data._subject=`LXBE booking request — ${data.name}`;
+  data._subject=`NOTJUST booking request — ${data.name}`;
   data._template='table';
   data._captcha='false';
   try{
@@ -62,7 +60,62 @@ bookingForm.addEventListener('submit',async e=>{
   }finally{submit.disabled=false}
 });
 
-/* ----------  ---------- */
-const toTop=document.querySelector('#toTop');
-addEventListener('scroll',()=>toTop.classList.toggle('show',scrollY>innerHeight*.8),{passive:true});
-toTop.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+/* ---------- STAGE VIDEO ---------- */
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const video=document.querySelector('#stageVideo'),soundToggle=document.querySelector('#soundToggle');
+/* Load the source from script so a hidden page (maintenance mode) never downloads it,
+   and phones get the lighter encode. */
+if(video.getClientRects().length){
+  video.muted=true;video.defaultMuted=true;video.playsInline=true;
+  video.src=matchMedia('(max-width: 700px)').matches?video.dataset.srcMobile:video.dataset.srcDesktop;
+  const tryPlay=()=>{if(video.paused)video.play().catch(()=>{})};
+  tryPlay();
+  video.addEventListener('canplay',tryPlay,{once:true});
+  /* Some browsers block autoplay (iOS Low Power Mode, strict settings): start on the first interaction. */
+  ['pointerdown','touchstart','keydown'].forEach(ev=>addEventListener(ev,tryPlay,{once:true,passive:true}));
+}
+soundToggle.addEventListener('click',()=>{
+  const on=video.muted;
+  video.muted=!on;
+  if(on&&video.paused)video.play().catch(()=>{});
+  soundToggle.setAttribute('aria-pressed',on);
+  soundToggle.querySelector('.sound-label').textContent=on?'Sound on':'Sound off';
+});
+
+/* ---------- MOBILE MENU ---------- */
+const menu=document.querySelector('#stageMenu'),menuToggle=document.querySelector('#menuToggle');
+function setMenu(open){menu.classList.toggle('open',open);menuToggle.setAttribute('aria-expanded',open);menuToggle.textContent=open?'Close':'Menu'}
+menuToggle.addEventListener('click',()=>setMenu(!menu.classList.contains('open')));
+menu.querySelectorAll('[data-open-booking]').forEach(b=>b.addEventListener('click',()=>setMenu(false)));
+
+/* ---------- DRAWER PANELS ---------- */
+const drawer=document.querySelector('#drawer'),drawerScroll=drawer.querySelector('.drawer-scroll'),drawerLabel=drawer.querySelector('#drawerLabel'),panels=[...drawer.querySelectorAll('.panel')];
+let closeTimer;
+function panelFor(hash){const target=hash&&hash.length>1&&document.getElementById(decodeURIComponent(hash.slice(1)));return target?target.closest('.panel'):null}
+function openPanel(hash){
+  const panel=panelFor(hash);if(!panel)return;
+  clearTimeout(closeTimer);setMenu(false);
+  panels.forEach(p=>p.hidden=p!==panel);
+  drawerLabel.textContent=panel.dataset.label;
+  menu.querySelectorAll('a').forEach(a=>a.setAttribute('aria-current',panelFor(a.hash)===panel));
+  if(!drawer.open)drawer.showModal();
+  drawerScroll.scrollTop=0;
+  const target=document.getElementById(decodeURIComponent(hash.slice(1)));
+  if(target!==panel.firstElementChild)target.scrollIntoView();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>drawer.classList.add('is-open')));
+  history.replaceState(null,'',hash);
+}
+function closePanel(){
+  if(!drawer.open)return;
+  drawer.classList.remove('is-open');
+  menu.querySelectorAll('a').forEach(a=>a.removeAttribute('aria-current'));
+  history.replaceState(null,'',location.pathname+location.search);
+  closeTimer=setTimeout(()=>drawer.close(),reduced?0:550);
+}
+menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openPanel(a.hash)}));
+drawer.querySelector('.drawer-close').addEventListener('click',closePanel);
+drawer.addEventListener('cancel',e=>{e.preventDefault();closePanel()});
+drawer.addEventListener('click',e=>{if(e.target===drawer)closePanel()});
+document.querySelector('.stage-mark').addEventListener('click',e=>{e.preventDefault();closePanel();setMenu(false)});
+addEventListener('hashchange',()=>openPanel(location.hash));
+if(location.hash)openPanel(location.hash);
