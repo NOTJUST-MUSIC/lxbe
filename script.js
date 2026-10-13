@@ -63,8 +63,7 @@ bookingForm.addEventListener('submit',async e=>{
 /* ---------- STAGE VIDEO ---------- */
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const video=document.querySelector('#stageVideo'),soundToggle=document.querySelector('#soundToggle');
-/* Load the source from script so a hidden page (maintenance mode) never downloads it,
-   and phones get the lighter encode. */
+/* Load the source from script so phones get the lighter encode. */
 if(video.getClientRects().length){
   video.muted=true;video.defaultMuted=true;video.playsInline=true;
   video.src=matchMedia('(max-width: 700px)').matches?video.dataset.srcMobile:video.dataset.srcDesktop;
