@@ -23,7 +23,7 @@ const bookingDialog=document.querySelector('#booking'),bookingForm=document.quer
    First submission sends a one-time activation email to the address below; confirm it once and
    every later submission is forwarded straight to the inbox. Optionally replace the address with
    the hashed alias FormSubmit gives you after activation, so the mailbox is not exposed in the HTML. */
-const FORM_ENDPOINT='https://formsubmit.co/ajax/hello.alexbemusic@gmail.com';
+const FORM_ENDPOINT='https://formsubmit.co/ajax/team@notjust.music';
 
 function openBooking(){bookingDialog.showModal();setTimeout(()=>bookingDialog.querySelector('#bk-name').focus(),80)}
 document.querySelectorAll('[data-open-booking]').forEach(b=>b.addEventListener('click',openBooking));
@@ -56,7 +56,7 @@ bookingForm.addEventListener('submit',async e=>{
     bookingStatus.textContent='Request sent. We will get back to you within 48 hours.';
   }catch(err){
     bookingStatus.className='form-status error';
-    bookingStatus.innerHTML='Could not send right now. Please email <a href="mailto:hello.alexbemusic@gmail.com">hello.alexbemusic@gmail.com</a>.';
+    bookingStatus.innerHTML='Could not send right now. Please email <a href="mailto:team@notjust.music">team@notjust.music</a>.';
   }finally{submit.disabled=false}
 });
 
