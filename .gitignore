@@ -1,1 +1,10 @@
+# Local environment
 .env.local
+
+# macOS metadata (AppleDouble files created on the external drive)
+._*
+.DS_Store
+
+# Reference material that must not be published
+assets/NOTJUST_Tratamiento_Creativo_v6_ES.pdf
+assets/notjust REVEAL.MP4
