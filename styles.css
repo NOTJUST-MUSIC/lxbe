@@ -1075,7 +1075,9 @@ body {
 }
 
 .contact-email {
-  font-size: clamp(1rem, 2vw, 1.8rem);
+  font: 600 clamp(12px, 1.2vw, 15px)/1 'IBM Plex Mono', monospace;
+  letter-spacing: .11em;
+  text-transform: uppercase;
   color: white;
   text-decoration: none;
   border-bottom: 1px solid #777;
@@ -1084,10 +1086,6 @@ body {
 
 .contact-email:hover {
   color: var(--red);
-}
-
-.contact-email span {
-  margin-left: 20px;
 }
 
 .social {

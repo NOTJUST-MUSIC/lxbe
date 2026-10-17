@@ -4,49 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#050505">
-  <meta name="description" content="Official website — temporarily under maintenance.">
-  <title>We’ll be back soon</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23ff0000'/%3E%3C/svg%3E">
+  <meta name="description" content="Listen to NOTJUST — sets, mixes, edits and bootlegs.">
+  <title>NOTJUST — Listen</title>
+  <link rel="icon" href="../assets/notjust-favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="../assets/notjust-favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/notjust-apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    if (['localhost', '127.0.0.1'].includes(location.hostname) || new URLSearchParams(location.search).has('preview')) {
-      document.documentElement.classList.add('preview-mode');
-      /* The artist name stays out of the static HTML until the reveal: crawlers and
-         link previews only ever see the neutral maintenance title and icon. */
-      document.title = 'NOTJUST — Listen';
-      document.querySelector('meta[name="description"]').content = 'Listen to NOTJUST — sets, mixes, edits and bootlegs.';
-      document.querySelector('link[rel="icon"]').remove();
-      [['icon', '../assets/notjust-favicon.ico', {sizes: '32x32'}], ['icon', '../assets/notjust-favicon.svg', {type: 'image/svg+xml'}],
-       ['apple-touch-icon', '../assets/notjust-apple-touch-icon.png', {sizes: '180x180'}], ['manifest', '../site.webmanifest', {}]]
-        .forEach(([rel, href, attrs]) => document.head.append(Object.assign(document.createElement('link'), {rel, href}, attrs)));
-    }
-  </script>
   <style>
-    html:not(.preview-mode) body > :not(.maintenance-screen) { display: none !important; }
-    html.preview-mode .maintenance-screen { display: none !important; }
-    .maintenance-screen {
-      position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
-      padding: calc(env(safe-area-inset-top, 0px) + 28px) clamp(20px, 4vw, 56px) calc(env(safe-area-inset-bottom, 0px) + 26px);
-      background: radial-gradient(ellipse at 12% 115%, rgba(255, 0, 0, .2), transparent 55%), #050505;
-      color: #f4f2ed; font-family: Inter, sans-serif;
-    }
-    .maintenance-screen::after {
-      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .05;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
-    }
-    .m-top, .m-foot { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 16px; font: 600 10px/1 'IBM Plex Mono', monospace; letter-spacing: .14em; text-transform: uppercase; }
-    .m-status { display: flex; align-items: center; gap: 10px; color: #ff0000; }
-    .m-status i { width: 7px; height: 7px; border-radius: 50%; background: #ff0000; animation: m-pulse 1.6s ease-in-out infinite; }
-    @keyframes m-pulse { 50% { opacity: .25; } }
-    .m-body { position: relative; z-index: 1; }
-    .m-body h1 { margin: 0; font-size: clamp(3.4rem, 11vw, 10rem); font-weight: 700; line-height: .86; letter-spacing: -.07em; }
-    .m-body .maintenance-message { margin: 30px 0 0; max-width: 42ch; font: 500 11px/1.7 'IBM Plex Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
-    .m-foot { font-weight: 500; font-size: 9px; letter-spacing: .08em; color: rgba(255, 255, 255, .45); }
-    .m-top span { white-space: nowrap; }
-    @media (max-width: 480px) { .m-top span + span { display: none; } }
-    @media (prefers-reduced-motion: reduce) { .m-status i { animation: none; } }
     :root {
       --black: #050505;
       --white: #f4f2ed;
@@ -222,14 +189,6 @@
   </style>
 </head>
 <body>
-  <main class="maintenance-screen" role="main" aria-labelledby="maintenance-title">
-    <header class="m-top"><span class="m-status"><i aria-hidden="true"></i>Temporary maintenance</span><span>Barcelona · Worldwide</span></header>
-    <div class="m-body">
-      <h1 id="maintenance-title">We’ll be<br>back soon.</h1>
-      <p class="maintenance-message">We’re updating the site. Please check back soon.</p>
-    </div>
-    <footer class="m-foot"><span>© 2026 All rights reserved.</span></footer>
-  </main>
   <div class="bg" aria-hidden="true"></div>
 
   <div class="page">
