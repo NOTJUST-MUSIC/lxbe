@@ -337,7 +337,19 @@ html.drawer-open {
 }
 
 .shows-viewport {
-  overflow: hidden;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.shows-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.shows-viewport.is-dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .shows-track {
@@ -347,20 +359,14 @@ html.drawer-open {
   padding-inline: var(--gutter);
 }
 
-/* When the shows overflow the screen, the list is rendered twice and slides
-   left by exactly one copy (--shift, set in script.js) for a seamless loop. */
-.shows-track.is-marquee {
+/* Looping carousel (driven by script.js): the list is rendered three times, so
+   side padding would break the seamless jump between copies. */
+.shows-track.is-loop {
   padding-inline: 0;
-  animation: shows-scroll var(--duration, 40s) linear infinite;
 }
 
-.shows-viewport:hover .shows-track.is-marquee,
-.shows-track.is-marquee:focus-within {
-  animation-play-state: paused;
-}
-
-@keyframes shows-scroll {
-  to { transform: translateX(calc(-1 * var(--shift, 50%))); }
+.show img {
+  -webkit-user-drag: none;
 }
 
 .show {
@@ -482,16 +488,6 @@ a.show:hover h3 {
   line-height: .95;
   letter-spacing: -.05em;
   text-transform: uppercase;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .shows-track.is-marquee {
-    animation: none;
-  }
-
-  .shows-viewport {
-    overflow-x: auto;
-  }
 }
 
 
@@ -2153,8 +2149,7 @@ html {
   }
 
   .shows-title {
-    order: -1;
-    margin: 0 0 10px;
+    margin: 10px 0 0;
     font-size: 1.15rem;
     letter-spacing: -.03em;
   }

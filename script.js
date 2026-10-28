@@ -165,15 +165,48 @@ function renderShows(){
       `<p class="show-name" aria-hidden="true">${name(s)}</p><p class="show-venue" aria-hidden="true">${venue(s)}</p></${tag}>`;
   };
   const once=upcoming.map(s=>tile(s,false)).join('');
-  showsTrack.className='shows-track';showsTrack.innerHTML=once;
-  /* Only slide when the shows are wider than the screen; a short list stays still. */
-  if(reduced||showsTrack.scrollWidth<=innerWidth)return;
+  showsTrack.className='shows-track';showsTrack.innerHTML=once;carousel.set(0);
+  /* Only loop when the shows are wider than the screen; a short list stays still. */
+  if(showsTrack.scrollWidth<=innerWidth)return;
   const gap=parseFloat(getComputedStyle(showsTrack).columnGap)||0;
   const setWidth=upcoming.length*(showsTrack.firstElementChild.getBoundingClientRect().width+gap);
-  showsTrack.innerHTML=once+upcoming.map(s=>tile(s,true)).join('');
-  showsTrack.style.setProperty('--shift',setWidth+'px');
-  showsTrack.style.setProperty('--duration',Math.max(20,setWidth/45)+'s');
-  showsTrack.classList.add('is-marquee');
+  /* Three copies: the view starts on the middle one and jumps by one copy when it
+     drifts too far either way, so both auto-play and manual scrolling loop seamlessly. */
+  const clones=upcoming.map(s=>tile(s,true)).join('');
+  showsTrack.innerHTML=clones+once+clones;
+  showsTrack.classList.add('is-loop');
+  carousel.set(setWidth);
 }
+
+/* Upcoming-shows carousel: drifts left on its own, but can be swiped, scrolled with a
+   trackpad or dragged with the mouse. Any interaction pauses it; it resumes a few
+   seconds after the last one, from wherever the visitor left it. */
+const carousel=(()=>{
+  const view=document.querySelector('.shows-viewport'),SPEED=45,IDLE=2500;
+  let loop=0,pos=0,last=0,resumeAt=0,hover=false,drag=null,moved=false,mine=0;
+  /* Browsers round scrollLeft, so remember where we put it ourselves ("mine") and
+     only treat bigger differences as the visitor scrolling. */
+  const put=x=>{view.scrollLeft=x;mine=view.scrollLeft};
+  const wrap=()=>{if(!loop)return;const x=view.scrollLeft;if(x<loop*.5){put(x+loop);pos+=loop}else if(x>loop*1.5){put(x-loop);pos-=loop}};
+  const hold=()=>{resumeAt=performance.now()+IDLE};
+  function frame(t){
+    const dt=Math.min(64,t-(last||t));last=t;
+    if(loop&&!reduced&&!hover&&!drag&&t>resumeAt&&!showsSection.hidden){pos+=SPEED*dt/1000;put(pos);wrap()}
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  view.addEventListener('scroll',()=>{if(Math.abs(view.scrollLeft-mine)>2){pos=mine=view.scrollLeft;hold()}wrap()},{passive:true});
+  ['wheel','touchstart','keydown'].forEach(ev=>view.addEventListener(ev,hold,{passive:true}));
+  view.addEventListener('mouseenter',()=>hover=true);
+  view.addEventListener('mouseleave',()=>{hover=false;hold()});
+  /* Mouse drag (touch and trackpads scroll natively). */
+  view.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button)return;drag={x:e.clientX,left:view.scrollLeft};moved=false});
+  addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x;if(Math.abs(dx)>4){moved=true;view.classList.add('is-dragging')}view.scrollLeft=drag.left-dx});
+  addEventListener('pointerup',()=>{if(!drag)return;drag=null;view.classList.remove('is-dragging');hold()});
+  view.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopPropagation();moved=false}},true);
+  view.addEventListener('dragstart',e=>e.preventDefault());
+  return {set(width){loop=width;pos=width;put(width)}};
+})();
+
 renderShows();
 let showsResize;addEventListener('resize',()=>{clearTimeout(showsResize);showsResize=setTimeout(renderShows,200)});
