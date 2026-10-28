@@ -35,9 +35,10 @@
       <a href="#about"><span>01</span>About</a>
       <a href="#music"><span>02</span>Music</a>
       <a href="#international"><span>03</span>Live</a>
-      <a href="#gallery"><span>04</span>Gallery</a>
-      <a href="#rider"><span>05</span>Rider</a>
-      <a href="#contact"><span>06</span>Contact</a>
+      <a href="#shows" class="menu-shows" data-scroll hidden><span>04</span>Shows</a>
+      <a href="#gallery"><span>05</span>Gallery</a>
+      <a href="#rider"><span>06</span>Rider</a>
+      <a href="#contact"><span>07</span>Contact</a>
       <button type="button" class="btn primary menu-book" data-open-booking>Book now <span>↗</span></button>
     </nav>
 
@@ -49,7 +50,16 @@
       </div>
       <p>© 2026 NOTJUST. All rights reserved.</p>
     </footer>
+
+    <a class="stage-cue" href="#shows" hidden>Upcoming shows <span aria-hidden="true">↓</span></a>
   </div>
+
+  <section class="shows" id="shows" aria-labelledby="showsTitle" hidden>
+    <div class="shows-viewport">
+      <div class="shows-track" id="showsTrack"></div>
+    </div>
+    <h2 class="shows-title" id="showsTitle">Upcoming shows</h2>
+  </section>
 
   <dialog class="drawer" id="drawer" aria-labelledby="drawerLabel">
     <div class="drawer-bar">
@@ -152,7 +162,7 @@
         </div>
       </section>
       </div>
-      <div class="panel" data-panel="gallery" data-label="04 — Gallery" hidden>
+      <div class="panel" data-panel="gallery" data-label="05 — Gallery" hidden>
       <section class="section gallery" id="gallery">
         <div class="section-title reveal"><p class="kicker">Live moments</p><h2>Gallery.</h2></div>
         <div class="gallery-grid reveal">
@@ -163,7 +173,7 @@
         </div>
       </section>
       </div>
-      <div class="panel" data-panel="rider" data-label="05 — Rider" hidden>
+      <div class="panel" data-panel="rider" data-label="06 — Rider" hidden>
       <section class="section rider" id="rider">
         <div class="section-title"><p class="kicker">Show requirements</p><h2>Technical rider.</h2></div>
         <ul class="rider-list">
@@ -175,7 +185,7 @@
         </ul>
       </section>
       </div>
-      <div class="panel" data-panel="contact" data-label="06 — Contact" hidden>
+      <div class="panel" data-panel="contact" data-label="07 — Contact" hidden>
       <section class="contact" id="contact">
         <div class="contact-photo"></div><div class="contact-overlay"></div>
         <div class="contact-content reveal"><p class="kicker">Bookings & enquiries</p><h2>Let’s create<br>something<br><em>unforgettable.</em></h2><div class="contact-actions"><button type="button" class="btn primary" data-open-booking>Booking request <span>↗</span></button><a class="contact-email" href="mailto:team@notjust.music">team@notjust.music</a></div><div class="social"><a href="https://instagram.com/notjusttt" target="_blank" rel="noopener">Instagram ↗</a><a href="https://soundcloud.com/notjusttt" target="_blank" rel="noopener">SoundCloud ↗</a></div></div>

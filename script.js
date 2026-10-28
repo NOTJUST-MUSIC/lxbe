@@ -98,6 +98,7 @@ function openPanel(hash){
   panels.forEach(p=>p.hidden=p!==panel);
   drawerLabel.textContent=panel.dataset.label;
   menu.querySelectorAll('a').forEach(a=>a.setAttribute('aria-current',panelFor(a.hash)===panel));
+  document.documentElement.classList.add('drawer-open');
   if(!drawer.open)drawer.showModal();
   drawerScroll.scrollTop=0;
   const target=document.getElementById(decodeURIComponent(hash.slice(1)));
@@ -110,12 +111,69 @@ function closePanel(){
   drawer.classList.remove('is-open');
   menu.querySelectorAll('a').forEach(a=>a.removeAttribute('aria-current'));
   history.replaceState(null,'',location.pathname+location.search);
-  closeTimer=setTimeout(()=>drawer.close(),reduced?0:550);
+  closeTimer=setTimeout(()=>{drawer.close();document.documentElement.classList.remove('drawer-open')},reduced?0:550);
 }
-menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openPanel(a.hash)}));
+menu.querySelectorAll('a:not([data-scroll])').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openPanel(a.hash)}));
+/* "Shows" scrolls down to the upcoming shows instead of opening a panel. */
+menu.querySelector('[data-scroll]').addEventListener('click',e=>{e.preventDefault();setMenu(false);document.querySelector('#shows').scrollIntoView({behavior:reduced?'auto':'smooth'})});
 drawer.querySelector('.drawer-close').addEventListener('click',closePanel);
 drawer.addEventListener('cancel',e=>{e.preventDefault();closePanel()});
 drawer.addEventListener('click',e=>{if(e.target===drawer)closePanel()});
 document.querySelector('.stage-mark').addEventListener('click',e=>{e.preventDefault();closePanel();setMenu(false)});
 addEventListener('hashchange',()=>openPanel(location.hash));
 if(location.hash)openPanel(location.hash);
+
+/* ---------- UPCOMING SHOWS ----------
+   Add a show here: date (YYYY-MM-DD), title, city, image (4:5 flyer; without
+   one, a branded poster is drawn from the title) and,
+   optionally, end (last day of a multi-day show) and tickets (URL). A show
+   disappears automatically the day after its last date; with no upcoming shows the whole section is hidden. */
+const shows=[
+  {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg'},
+  {date:'2026-11-07',title:'Sabrosura Tardeo · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/sabrosura-sea-sea-club-2026.jpg'},
+  {date:'2026-11-14',end:'2026-11-15',title:'Soul Market BCN · Port Olímpic',city:'Barcelona, Spain',image:'assets/shows/soul-market-port-olimpic-2026.jpg'},
+  {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg'},
+  {date:'2026-11-21',title:'The Players Club · Coya (W Hotel)',city:'Barcelona, Spain',image:'assets/shows/players-club-coya-2026.jpg'},
+  {date:'2026-11-27',title:'The Players Club · Barcelona Pool House',city:'Barcelona, Spain'}
+];
+const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
+function renderShows(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const upcoming=shows.filter(s=>new Date((s.end||s.date)+'T00:00:00')>=today).sort((a,b)=>a.date.localeCompare(b.date));
+  showsSection.hidden=stageCue.hidden=document.querySelector('.menu-shows').hidden=!upcoming.length;
+  if(!upcoming.length)return;
+  const day=d=>new Date(d+'T00:00:00'),part=(d,o)=>new Intl.DateTimeFormat('en-GB',o).format(day(d));
+  /* "FRI · 30 OCT 2026", or "SAT 14 – SUN 15 NOV 2026" for a multi-day show in one month. */
+  const when=s=>!s.end?`${part(s.date,{weekday:'short'})} · ${part(s.date,{day:'2-digit',month:'short',year:'numeric'})}`
+    :`${part(s.date,{weekday:'short',day:'2-digit'})} – ${part(s.end,{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}`.replace(/,/g,'');
+  /* On phones the city is only added when the show is outside Barcelona (home base). */
+  const name=s=>s.title.split(' · ')[0],city=s=>s.city.split(',')[0].trim(),
+    venue=s=>[s.title.split(' · ').slice(1).join(' · '),city(s)!=='Barcelona'&&city(s)].filter(Boolean).join(' · ');
+  /* Compact date for the narrow phone cards: "30 OCT", "14–15 NOV". */
+  const whenShort=s=>!s.end?part(s.date,{day:'2-digit',month:'short'})
+    :`${part(s.date,{day:'2-digit'})}–${part(s.end,{day:'2-digit',month:'short'})}`;
+  /* Branded stand-in until the real flyer arrives: "Artist · Venue" becomes
+     the headline "Artist" with the venue underneath. */
+  const poster=s=>{const [name,...venue]=s.title.split(' · ');
+    return `<div class="show-poster" aria-hidden="true"><span class="show-poster-date">${part(s.date,{day:'2-digit',month:'short'})}</span>`+
+      `<strong>${name}</strong><span class="show-poster-venue">${venue.join(' · ')}<br>${s.city.split(',')[0]}</span></div>`;};
+  const tile=(s,clone)=>{
+    const tag=s.tickets?'a':'article',link=s.tickets?` href="${s.tickets}" target="_blank" rel="noopener"`:'';
+    return `<${tag} class="show"${link}${clone?' aria-hidden="true" tabindex="-1"':''}><figure>${s.image?`<img src="${s.image}" alt="${clone?'':`${s.title} — ${s.city}`}" loading="lazy">`:poster(s)}</figure>`+
+      `<p class="show-date"><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></p><h3>${s.title.replace(/ · ([^·]+)$/,' · <span class="nowrap">$1</span>')}</h3><p class="show-city">${s.city}</p>`+
+      /* Phones show the name and the venue on separate lines instead of the h3. */
+      `<p class="show-name" aria-hidden="true">${name(s)}</p><p class="show-venue" aria-hidden="true">${venue(s)}</p></${tag}>`;
+  };
+  const once=upcoming.map(s=>tile(s,false)).join('');
+  showsTrack.className='shows-track';showsTrack.innerHTML=once;
+  /* Only slide when the shows are wider than the screen; a short list stays still. */
+  if(reduced||showsTrack.scrollWidth<=innerWidth)return;
+  const gap=parseFloat(getComputedStyle(showsTrack).columnGap)||0;
+  const setWidth=upcoming.length*(showsTrack.firstElementChild.getBoundingClientRect().width+gap);
+  showsTrack.innerHTML=once+upcoming.map(s=>tile(s,true)).join('');
+  showsTrack.style.setProperty('--shift',setWidth+'px');
+  showsTrack.style.setProperty('--duration',Math.max(20,setWidth/45)+'s');
+  showsTrack.classList.add('is-marquee');
+}
+renderShows();
+let showsResize;addEventListener('resize',()=>{clearTimeout(showsResize);showsResize=setTimeout(renderShows,200)});
