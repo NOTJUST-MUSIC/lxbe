@@ -467,6 +467,22 @@ html.drawer-open {
   display: none;
 }
 
+/* Shows with a ticket link: the whole card opens the ticket page in a new tab. */
+.show-date {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.show-tix {
+  flex: none;
+  color: var(--white);
+}
+
+a.show:hover .show-tix {
+  color: var(--red);
+}
+
 .show-name,
 .show-venue {
   display: none;

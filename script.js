@@ -129,7 +129,7 @@ if(location.hash)openPanel(location.hash);
    optionally, end (last day of a multi-day show) and tickets (URL). A show
    disappears automatically the day after its last date; with no upcoming shows the whole section is hidden. */
 const shows=[
-  {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg'},
+  {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg',tickets:'https://oneforoneapp.com/events/yYqXqy'},
   {date:'2026-11-07',title:'Sabrosura Tardeo · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/sabrosura-sea-sea-club-2026.jpg'},
   {date:'2026-11-14',end:'2026-11-15',title:'Soul Market BCN · Port Olímpic',city:'Barcelona, Spain',image:'assets/shows/soul-market-port-olimpic-2026.jpg'},
   {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg'},
@@ -160,7 +160,7 @@ function renderShows(){
   const tile=(s,clone)=>{
     const tag=s.tickets?'a':'article',link=s.tickets?` href="${s.tickets}" target="_blank" rel="noopener"`:'';
     return `<${tag} class="show"${link}${clone?' aria-hidden="true" tabindex="-1"':''}><figure>${s.image?`<img src="${s.image}" alt="${clone?'':`${s.title} — ${s.city}`}" loading="lazy">`:poster(s)}</figure>`+
-      `<p class="show-date"><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></p><h3>${s.title.replace(/ · ([^·]+)$/,' · <span class="nowrap">$1</span>')}</h3><p class="show-city">${s.city}</p>`+
+      `<p class="show-date"><span><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></span>${s.tickets?'<span class="show-tix">Tickets ↗</span>':''}</p><h3>${s.title.replace(/ · ([^·]+)$/,' · <span class="nowrap">$1</span>')}</h3><p class="show-city">${s.city}</p>`+
       /* Phones show the name and the venue on separate lines instead of the h3. */
       `<p class="show-name" aria-hidden="true">${name(s)}</p><p class="show-venue" aria-hidden="true">${venue(s)}</p></${tag}>`;
   };
