@@ -130,7 +130,7 @@ if(location.hash)openPanel(location.hash);
    disappears automatically the day after its last date; with no upcoming shows the whole section is hidden. */
 const shows=[
   {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg',tickets:'https://oneforoneapp.com/events/yYqXqy'},
-  {date:'2026-11-07',title:'Sabrosura Tardeo · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/sabrosura-sea-sea-club-2026.jpg'},
+  {date:'2026-11-14',title:'Sabrosura Tardeo · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/sabrosura-sea-sea-club-2026.jpg'},
   {date:'2026-11-14',end:'2026-11-15',title:'Soul Market BCN · Port Olímpic',city:'Barcelona, Spain',image:'assets/shows/soul-market-port-olimpic-2026.jpg'},
   {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg',tickets:'https://luma.com/k4k8goh5'},
   {date:'2026-11-21',title:'The Players Club · Coya (W Hotel)',city:'Barcelona, Spain',image:'assets/shows/players-club-coya-2026.jpg'},
