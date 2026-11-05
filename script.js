@@ -126,7 +126,8 @@ if(location.hash)openPanel(location.hash);
 /* ---------- UPCOMING SHOWS ----------
    Add a show here: date (YYYY-MM-DD), title, city, image (4:5 flyer; without
    one, a branded poster is drawn from the title) and,
-   optionally, end (last day of a multi-day show) and tickets (URL). A show
+   optionally, end (last day of a multi-day show), venue (shown small, not in the
+   title) and tickets (URL). A show
    disappears automatically the day after its last date; with no upcoming shows the whole section is hidden. */
 const shows=[
   {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg',tickets:'https://oneforoneapp.com/events/yYqXqy'},
@@ -135,7 +136,7 @@ const shows=[
   {date:'2026-11-20',title:'ZayLune x Toca Rouge · Sala Bikini',city:'Barcelona, Spain'},
   {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg',tickets:'https://luma.com/k4k8goh5'},
   {date:'2026-11-27',title:'The Players Club · Barcelona Pool House',city:'Barcelona, Spain'},
-  {date:'2026-11-28',title:'Akiro · Japanese Restaurant',city:'Barcelona, Spain'}
+  {date:'2026-11-28',title:'Akiro',venue:'Japanese Restaurant',city:'Barcelona, Spain'}
 ];
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
 function renderShows(){
@@ -148,16 +149,18 @@ function renderShows(){
   const when=s=>!s.end?`${part(s.date,{weekday:'short'})} · ${part(s.date,{day:'2-digit',month:'short',year:'numeric'})}`
     :`${part(s.date,{weekday:'short',day:'2-digit'})} – ${part(s.end,{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}`.replace(/,/g,'');
   /* On phones the city is only added when the show is outside Barcelona (home base). */
+  /* An optional `venue` field names the place without adding it to the white title. */
   const name=s=>s.title.split(' · ')[0],city=s=>s.city.split(',')[0].trim(),
-    venue=s=>[s.title.split(' · ').slice(1).join(' · '),city(s)!=='Barcelona'&&city(s)].filter(Boolean).join(' · ');
+    place=s=>s.venue||s.title.split(' · ').slice(1).join(' · '),
+    venue=s=>[place(s),city(s)!=='Barcelona'&&city(s)].filter(Boolean).join(' · ');
   /* Compact date for the narrow phone cards: "30 OCT", "14–15 NOV". */
   const whenShort=s=>!s.end?part(s.date,{day:'2-digit',month:'short'})
     :`${part(s.date,{day:'2-digit'})}–${part(s.end,{day:'2-digit',month:'short'})}`;
   /* Branded stand-in until the real flyer arrives: "Artist · Venue" becomes
      the headline "Artist" with the venue underneath. */
-  const poster=s=>{const [name,...venue]=s.title.split(' · ');
+  const poster=s=>{const name=s.title.split(' · ')[0];
     return `<div class="show-poster" aria-hidden="true"><span class="show-poster-date">${part(s.date,{day:'2-digit',month:'short'})}</span>`+
-      `<strong>${name}</strong><span class="show-poster-venue">${[venue.join(' · '),s.city.split(',')[0]].filter(Boolean).join('<br>')}</span></div>`;};
+      `<strong>${name}</strong><span class="show-poster-venue">${[place(s),s.city.split(',')[0]].filter(Boolean).join('<br>')}</span></div>`;};
   const tile=(s,clone)=>{
     const tag=s.tickets?'a':'article',link=s.tickets?` href="${s.tickets}" target="_blank" rel="noopener"`:'';
     return `<${tag} class="show"${link}${clone?' aria-hidden="true" tabindex="-1"':''}><figure>${s.image?`<img src="${s.image}" alt="${clone?'':`${s.title} — ${s.city}`}" loading="lazy">`:poster(s)}</figure>`+
