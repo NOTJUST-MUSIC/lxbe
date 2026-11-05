@@ -131,9 +131,9 @@ if(location.hash)openPanel(location.hash);
 const shows=[
   {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg',tickets:'https://oneforoneapp.com/events/yYqXqy'},
   {date:'2026-11-14',end:'2026-11-15',title:'Soul Market BCN · Port Olímpic',city:'Barcelona, Spain',image:'assets/shows/soul-market-port-olimpic-2026.jpg'},
+  {date:'2026-11-20',title:'The Players Club · Coya (W Hotel)',city:'Barcelona, Spain',image:'assets/shows/players-club-coya-2026.jpg'},
   {date:'2026-11-20',title:'ZayLune x Toca Rouge · Sala Bikini',city:'Barcelona, Spain'},
   {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg',tickets:'https://luma.com/k4k8goh5'},
-  {date:'2026-11-20',title:'The Players Club · Coya (W Hotel)',city:'Barcelona, Spain',image:'assets/shows/players-club-coya-2026.jpg'},
   {date:'2026-11-27',title:'The Players Club · Barcelona Pool House',city:'Barcelona, Spain'},
   {date:'2026-11-28',title:'Akiro · Japanese Restaurant',city:'Barcelona, Spain'}
 ];
@@ -167,6 +167,7 @@ function renderShows(){
   };
   const once=upcoming.map(s=>tile(s,false)).join('');
   showsTrack.className='shows-track';showsTrack.innerHTML=once;carousel.set(0);
+  fitNames();
   /* Only loop when the shows are wider than the screen; a short list stays still. */
   if(showsTrack.scrollWidth<=innerWidth)return;
   const gap=parseFloat(getComputedStyle(showsTrack).columnGap)||0;
@@ -176,7 +177,21 @@ function renderShows(){
   const clones=upcoming.map(s=>tile(s,true)).join('');
   showsTrack.innerHTML=clones+once+clones;
   showsTrack.classList.add('is-loop');
+  fitNames();
   carousel.set(setWidth);
+}
+
+/* Phones: shrink a show name a little so it stays on one line (e.g. "ZayLune x Toca Rouge");
+   names that would need a too-small size keep wrapping onto two lines instead. */
+function fitNames(){
+  showsTrack.querySelectorAll('.show-name').forEach(el=>{
+    el.style.fontSize='';el.style.whiteSpace='';
+    if(getComputedStyle(el).display==='none')return;
+    el.style.whiteSpace='nowrap';
+    let size=parseFloat(getComputedStyle(el).fontSize);
+    while(el.scrollWidth>el.clientWidth&&size>10){size-=.5;el.style.fontSize=size+'px'}
+    if(el.scrollWidth>el.clientWidth){el.style.fontSize='';el.style.whiteSpace=''}
+  });
 }
 
 /* Upcoming-shows carousel: drifts left on its own, but can be swiped, scrolled with a
