@@ -132,10 +132,11 @@ const shows=[
   {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg',tickets:'https://oneforoneapp.com/events/yYqXqy'},
   {date:'2026-11-14',title:'Sabrosura Tardeo · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/sabrosura-sea-sea-club-2026.jpg'},
   {date:'2026-11-14',end:'2026-11-15',title:'Soul Market BCN · Port Olímpic',city:'Barcelona, Spain',image:'assets/shows/soul-market-port-olimpic-2026.jpg'},
-  {date:'2026-11-20',title:'ZayLune · Sala Bikini',city:'Barcelona, Spain'},
+  {date:'2026-11-20',title:'ZayLune x Toca Rouge · Sala Bikini',city:'Barcelona, Spain'},
   {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg',tickets:'https://luma.com/k4k8goh5'},
-  {date:'2026-11-21',title:'The Players Club · Coya (W Hotel)',city:'Barcelona, Spain',image:'assets/shows/players-club-coya-2026.jpg'},
-  {date:'2026-11-27',title:'The Players Club · Barcelona Pool House',city:'Barcelona, Spain'}
+  {date:'2026-11-20',title:'The Players Club · Coya (W Hotel)',city:'Barcelona, Spain',image:'assets/shows/players-club-coya-2026.jpg'},
+  {date:'2026-11-27',title:'The Players Club · Barcelona Pool House',city:'Barcelona, Spain'},
+  {date:'2026-11-28',title:'Akiro',city:'Barcelona, Spain'}
 ];
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
 function renderShows(){
@@ -157,7 +158,7 @@ function renderShows(){
      the headline "Artist" with the venue underneath. */
   const poster=s=>{const [name,...venue]=s.title.split(' · ');
     return `<div class="show-poster" aria-hidden="true"><span class="show-poster-date">${part(s.date,{day:'2-digit',month:'short'})}</span>`+
-      `<strong>${name}</strong><span class="show-poster-venue">${venue.join(' · ')}<br>${s.city.split(',')[0]}</span></div>`;};
+      `<strong>${name}</strong><span class="show-poster-venue">${[venue.join(' · '),s.city.split(',')[0]].filter(Boolean).join('<br>')}</span></div>`;};
   const tile=(s,clone)=>{
     const tag=s.tickets?'a':'article',link=s.tickets?` href="${s.tickets}" target="_blank" rel="noopener"`:'';
     return `<${tag} class="show"${link}${clone?' aria-hidden="true" tabindex="-1"':''}><figure>${s.image?`<img src="${s.image}" alt="${clone?'':`${s.title} — ${s.city}`}" loading="lazy">`:poster(s)}</figure>`+
