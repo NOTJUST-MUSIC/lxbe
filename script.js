@@ -113,7 +113,7 @@ function closePanel(){
   history.replaceState(null,'',location.pathname+location.search);
   closeTimer=setTimeout(()=>{drawer.close();document.documentElement.classList.remove('drawer-open')},reduced?0:550);
 }
-menu.querySelectorAll('a:not([data-scroll])').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openPanel(a.hash)}));
+menu.querySelectorAll('a:not([data-scroll]):not([data-page])').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openPanel(a.hash)}));
 /* "Shows" scrolls down to the upcoming shows instead of opening a panel. */
 menu.querySelector('[data-scroll]').addEventListener('click',e=>{e.preventDefault();setMenu(false);document.querySelector('#shows').scrollIntoView({behavior:reduced?'auto':'smooth'})});
 drawer.querySelector('.drawer-close').addEventListener('click',closePanel);
@@ -127,13 +127,13 @@ if(location.hash)openPanel(location.hash);
    Add a show here: date (YYYY-MM-DD), title, city, image (4:5 flyer; without
    one, a branded poster is drawn from the title) and,
    optionally, end (last day of a multi-day show), venue (shown small, not in the
-   title) and tickets (URL). A show
+   title), tickets (URL) or guestlist:true (links the card to /list/). A show
    disappears automatically the day after its last date; with no upcoming shows the whole section is hidden. */
 const shows=[
   {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg',tickets:'https://oneforoneapp.com/events/yYqXqy'},
   {date:'2026-11-14',end:'2026-11-15',title:'Soul Market BCN · Port Olímpic',city:'Barcelona, Spain',image:'assets/shows/soul-market-port-olimpic-2026.jpg'},
   {date:'2026-11-20',title:'The Players Club · Coya (W Hotel)',city:'Barcelona, Spain',image:'assets/shows/players-club-coya-2026.jpg'},
-  {date:'2026-11-20',title:'ZayLune x Toca Rouge · Sala Bikini',city:'Barcelona, Spain'},
+  {date:'2026-11-20',title:'ZayLune x Toca Rouge · Sala Bikini',city:'Barcelona, Spain',guestlist:true},
   {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg',tickets:'https://luma.com/k4k8goh5'},
   {date:'2026-11-27',title:'The Players Club · Barcelona Pool House',city:'Barcelona, Spain'},
   {date:'2026-11-28',title:'Akiro',venue:'Japanese Restaurant',city:'Barcelona, Spain'}
@@ -162,9 +162,11 @@ function renderShows(){
     return `<div class="show-poster" aria-hidden="true"><span class="show-poster-date">${part(s.date,{day:'2-digit',month:'short'})}</span>`+
       `<strong>${name}</strong><span class="show-poster-venue">${[place(s),s.city.split(',')[0]].filter(Boolean).join('<br>')}</span></div>`;};
   const tile=(s,clone)=>{
-    const tag=s.tickets?'a':'article',link=s.tickets?` href="${s.tickets}" target="_blank" rel="noopener"`:'';
+    const href=s.tickets||(s.guestlist&&'list/'),tag=href?'a':'article',
+      link=s.tickets?` href="${s.tickets}" target="_blank" rel="noopener"`:href?` href="${href}"`:'',
+      cta=s.tickets?'Tickets ↗':s.guestlist?'Guest list ✦':'';
     return `<${tag} class="show"${link}${clone?' aria-hidden="true" tabindex="-1"':''}><figure>${s.image?`<img src="${s.image}" alt="${clone?'':`${s.title} — ${s.city}`}" loading="lazy">`:poster(s)}</figure>`+
-      `<p class="show-date"><span><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></span>${s.tickets?'<span class="show-tix">Tickets ↗</span>':''}</p><h3>${s.title.replace(/ · ([^·]+)$/,' · <span class="nowrap">$1</span>')}</h3><p class="show-city">${s.city}</p>`+
+      `<p class="show-date"><span><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></span>${cta?`<span class="show-tix">${cta}</span>`:''}</p><h3>${s.title.replace(/ · ([^·]+)$/,' · <span class="nowrap">$1</span>')}</h3><p class="show-city">${s.city}</p>`+
       /* Phones show the name and the venue on separate lines instead of the h3. */
       `<p class="show-name" aria-hidden="true">${name(s)}</p><p class="show-venue" aria-hidden="true">${venue(s)}</p></${tag}>`;
   };
