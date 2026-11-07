@@ -21,7 +21,8 @@
     -webkit-font-smoothing:antialiased;line-height:1.5}
   .wrap{width:100%;max-width:460px;margin:0 auto;padding:40px 20px 32px;flex:1;display:flex;flex-direction:column}
   header{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.18em;text-transform:uppercase}
-  header .brand{font-weight:600}
+  header .brand{display:block;line-height:0}
+  header .brand img{display:block;width:120px;height:auto}
   header .star{color:var(--red);font-size:16px;letter-spacing:0}
   .hero{margin:56px 0 28px}
   .kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
@@ -76,7 +77,7 @@
 </head>
 <body>
 <div class="wrap" id="app">
-  <header><span class="brand">NOTJUST</span><span class="star">✦</span></header>
+  <header><a class="brand" href="../" aria-label="NOTJUST home"><img src="../assets/NOTJUST_logo_blanco.png" alt="NOTJUST"></a><span class="star">✦</span></header>
 
   <section class="hero">
     <div class="kicker">The list</div>
