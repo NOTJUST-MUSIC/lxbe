@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Not Just a Guest — NOTJUST</title>
+<meta name="description" content="Put your name down for the next NOTJUST night.">
+<meta property="og:title" content="Not Just a Guest — NOTJUST">
+<meta property="og:description" content="Put your name down for the next NOTJUST night.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0b; --ink:#f3ede2; --muted:#8f8a82; --line:#2a2826;
+    --red:#d62a1e; --field:#141312;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink)}
+  body{font-family:"Inter Tight",system-ui,sans-serif;min-height:100svh;display:flex;flex-direction:column;
+    -webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{width:100%;max-width:460px;margin:0 auto;padding:40px 20px 32px;flex:1;display:flex;flex-direction:column}
+  header{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.18em;text-transform:uppercase}
+  header .brand{font-weight:600}
+  header .star{color:var(--red);font-size:16px;letter-spacing:0}
+  .hero{margin:56px 0 28px}
+  .kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  h1{font-family:"Instrument Serif",serif;font-weight:400;font-size:clamp(48px,14vw,68px);line-height:.95;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--red)}
+  .lede{margin-top:18px;color:#c9c3b8;font-size:16px;max-width:36ch}
+  div.f{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .nights{display:flex;flex-direction:column;border-top:1px solid var(--line);margin-bottom:10px}
+  .night{display:grid;grid-template-columns:18px 1fr auto;gap:2px 12px;align-items:center;padding:14px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+  .night input{grid-row:span 2;accent-color:var(--red);width:16px;height:16px;margin:0}
+  .night .n{font-weight:500;font-size:15px}
+  .night .d{font-size:13px;text-align:right;white-space:nowrap}
+  .night .w{grid-column:2 / 4;font-size:12.5px;color:var(--muted)}
+  .night:has(input:checked) .n{color:var(--red)}
+  .single .night{grid-template-columns:1fr auto;cursor:default}
+  .single .night input{display:none}
+  .single .night .w{grid-column:1 / 3}
+  .single .night .n{color:var(--ink)!important}
+  .event{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;margin-bottom:28px;
+    display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:14px}
+  .event .label{color:var(--muted);font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+  .event .v{font-weight:500}
+  .event .right{text-align:right}
+  form{display:flex;flex-direction:column;gap:14px}
+  label.f{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .input{position:relative}
+  input[type=text],input[type=email]{width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);
+    font:inherit;font-size:16px;letter-spacing:0;text-transform:none;padding:14px 14px;border-radius:2px;outline:none;transition:border-color .15s}
+  input:focus{border-color:var(--ink)}
+  .at input{padding-left:30px}
+  .at::before{content:"@";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px}
+  .consent{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);margin-top:4px;cursor:pointer}
+  .consent input{margin-top:3px;accent-color:var(--red);width:16px;height:16px;flex:none}
+  button{margin-top:8px;background:var(--ink);color:var(--bg);border:0;font:inherit;font-weight:600;font-size:14px;
+    letter-spacing:.16em;text-transform:uppercase;padding:17px;border-radius:2px;cursor:pointer;display:flex;justify-content:center;gap:10px;align-items:center;transition:background .15s,color .15s}
+  button:hover{background:var(--red);color:var(--ink)}
+  button:disabled{opacity:.5;cursor:default}
+  .done .tip{font-size:13.5px;color:var(--muted);border-left:2px solid var(--red);padding-left:12px;margin-top:16px}
+  .done .tip strong{color:var(--ink);font-weight:500}
+  .note{font-size:12px;color:var(--muted);text-align:center;margin-top:2px}
+  .err{color:#ff6b5e;font-size:13px;min-height:1em}
+  .done{display:none;text-align:left;margin-top:8px}
+  .done .big{font-family:"Instrument Serif",serif;font-size:44px;line-height:1;margin-bottom:14px}
+  .done .big em{color:var(--red)}
+  .done p{color:#c9c3b8;font-size:15px;margin-bottom:10px}
+  .closed{display:none;color:#c9c3b8;font-size:15px}
+  footer{padding:28px 20px;text-align:center;font-family:"Instrument Serif",serif;font-style:italic;color:var(--muted);font-size:17px}
+  footer span{color:var(--red);font-style:normal}
+  .sent .formbox{display:none}.sent .done{display:block}
+  .isclosed .formbox{display:none}.isclosed .closed{display:block}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <header><span class="brand">NOTJUST</span><span class="star">✦</span></header>
+
+  <section class="hero">
+    <div class="kicker">The list</div>
+    <h1>Not just<br>a <em>guest.</em></h1>
+    <p class="lede">You're not coming to see a DJ. You're coming to be part of the night. Request your spot and we'll confirm it personally.</p>
+  </section>
+
+  <div class="formbox">
+    <form id="f" novalidate>
+      <div class="f" id="nights-label">Pick your night</div>
+      <div class="nights" id="nights" role="radiogroup"></div>
+      <label class="f">Name
+        <span class="input"><input type="text" name="name" autocomplete="name" required maxlength="80"></span>
+      </label>
+      <label class="f">Instagram
+        <span class="input at"><input type="text" name="instagram" autocomplete="off" autocapitalize="none" required maxlength="40" placeholder="yourhandle"></span>
+      </label>
+      <label class="f">Email
+        <span class="input"><input type="email" name="email" autocomplete="email" required maxlength="120"></span>
+      </label>
+      <label class="consent"><input type="checkbox" name="consent" required>
+        <span>I'm happy for NOTJUST to use these details to manage this guest list and let me know about future nights. I can ask to be removed any time.</span>
+      </label>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+      <div class="err" id="err" role="alert"></div>
+      <button type="submit" id="btn">Request my spot <span>✦</span></button>
+      <p class="note">Spots are limited by venue capacity. Signing up doesn't guarantee entry — you're only on the list once you get a confirmation from us.</p>
+    </form>
+  </div>
+
+  <div class="done">
+    <div class="big">Request <em>received.</em></div>
+    <p id="done-msg"></p>
+    <p>Spots are limited, so keep an eye on your email — if you're confirmed, you'll hear from us before the night.</p>
+    <p class="tip">Heads up: our confirmation email sometimes lands in <strong>spam</strong> or <strong>promotions</strong>. Check there too, and move it to your inbox so you don't miss the next ones.</p>
+  </div>
+
+  <div class="closed">No lists open right now. Follow <a href="https://instagram.com/notjusttt" style="color:var(--ink)">@notjusttt</a> for the next one.</div>
+</div>
+<footer>it was never <span>just</span> music</footer>
+
+<script>
+/* ===== YOUR NIGHTS =====
+   until: last day of the event (YYYY-MM-DD). The night disappears automatically the day after.
+   open:false hides a night without deleting it. Add new nights by copying a line. */
+const EVENTS = [
+  { name: "Soul Market BCN",                    when: "Sat 14 – Sun 15 Nov", venue: "Port Olímpic",         city: "Barcelona", until: "2026-11-15", open: false },
+  { name: "ZayLune × Toca Rouge",               when: "Fri 20 Nov · Late",   venue: "Sala Bikini",          city: "Barcelona", until: "2026-11-20", open: true },
+  { name: "BCN Coffee Rave · Festival Edition", when: "Sat 21 Nov",          venue: "Sea Sea Club",         city: "Barcelona", until: "2026-11-21", open: false },
+  { name: "The Players Club",                   when: "Fri 27 Nov",          venue: "Barcelona Pool House", city: "Barcelona", until: "2026-11-27", open: false },
+  { name: "Akiro BCN Anniversary",              when: "Sat 28 Nov",          venue: "TBA",                  city: "Barcelona", until: "2026-11-28", open: false },
+];
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
+/* ======================= */
+
+const $ = id => document.getElementById(id);
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const live = EVENTS.filter(e => e.open && new Date(e.until + "T23:59:59") >= today);
+let EVENT = live[0];
+if (!live.length) document.getElementById("app").classList.add("isclosed");
+live.forEach((ev, i) => {
+  const l = document.createElement("label");
+  l.className = "night";
+  const r = document.createElement("input");
+  r.type = "radio"; r.name = "night"; r.value = i; r.checked = i === 0;
+  r.addEventListener("change", () => { EVENT = live[i]; });
+  const n = document.createElement("span"); n.className = "n"; n.textContent = ev.name;
+  const d = document.createElement("span"); d.className = "d"; d.textContent = ev.when;
+  const w = document.createElement("span"); w.className = "w"; w.textContent = ev.venue + " · " + ev.city;
+  l.append(r, n, d, w);
+  $("nights").append(l);
+});
+if (live.length === 1) {               // only one night open: show it, no choice needed
+  $("nights-label").textContent = "The night";
+  $("nights").classList.add("single");
+}
+
+$("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, err = $("err"), btn = $("btn");
+  err.textContent = "";
+  if (f.website.value) return;                       // bot trap
+  const name = f.name.value.trim();
+  const ig = f.instagram.value.trim().replace(/^@+/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "");
+  const email = f.email.value.trim();
+  if (!name) return err.textContent = "Add your name.";
+  if (!/^[a-zA-Z0-9._]{1,30}$/.test(ig)) return err.textContent = "Check your Instagram handle.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err.textContent = "Check your email.";
+  if (!f.consent.checked) return err.textContent = "Tick the box so we can add you.";
+
+  btn.disabled = true; btn.firstChild.textContent = "Sending ";
+  const body = new URLSearchParams({
+    event: EVENT.name + " · " + EVENT.when + " · " + EVENT.venue,
+    name, instagram: "@" + ig, email
+  });
+  try {
+    if (ENDPOINT) await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body });
+    $("done-msg").textContent = "Thanks " + name.split(" ")[0] + " — we've got your request for " + EVENT.name + ", " + EVENT.when + ".";
+    document.getElementById("app").classList.add("sent");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (_) {
+    err.textContent = "Something went wrong. Try again, or DM @notjusttt.";
+    btn.disabled = false; btn.firstChild.textContent = "Request my spot ";
+  }
+});
+</script>
+</body>
+</html>
