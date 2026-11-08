@@ -124,7 +124,8 @@ const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-
 
 const $ = id => document.getElementById(id);
 const app = document.getElementById("app");
-let EVENT = null;
+let LIVE = [];          // nights open right now
+const picked = () => LIVE.filter((_, i) => { const c = document.querySelector('#nights input[value="' + i + '"]'); return !c || c.checked; });
 app.classList.add("loading");
 $("nights-label").textContent = "The night";
 $("nights").classList.add("single");
@@ -135,16 +136,15 @@ fetch(ENDPOINT + "?action=nights")
     app.classList.remove("loading");
     const live = r.open || (r.next ? [r.next] : []);
     if (!live.length) return app.classList.add("isclosed");
-    EVENT = live[0];
+    LIVE = live;
     const many = live.length > 1;
-    $("nights-label").textContent = many ? "Pick your night" : "The night";
+    $("nights-label").textContent = many ? "Pick your nights \u00b7 one or more" : "The night";
     $("nights").classList.toggle("single", !many);
     $("nights").replaceChildren(...live.map((ev, i) => {
       const l = document.createElement("label");
       l.className = "night";
       const r = document.createElement("input");
-      r.type = "radio"; r.name = "night"; r.value = i; r.checked = i === 0;
-      r.addEventListener("change", () => { EVENT = live[i]; });
+      r.type = "checkbox"; r.name = "night"; r.value = i; r.checked = i === 0;
       const n = document.createElement("span"); n.className = "n"; n.textContent = ev.name;
       const d = document.createElement("span"); d.className = "d"; d.textContent = ev.when;
       const w = document.createElement("span"); w.className = "w"; w.textContent = [ev.venue, ev.city].filter(Boolean).join(" \u00b7 ");
@@ -162,7 +162,9 @@ $("f").addEventListener("submit", async e => {
   const f = e.target, err = $("err"), btn = $("btn");
   err.textContent = "";
   if (f.website.value) return;                       // bot trap
-  if (!EVENT) return err.textContent = "The night is still loading. Try again in a second.";
+  if (!LIVE.length) return err.textContent = "The night is still loading. Try again in a second.";
+  const nights = picked();
+  if (!nights.length) return err.textContent = "Pick at least one night.";
   const name = f.name.value.trim();
   const ig = f.instagram.value.trim().replace(/^@+/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "");
   const email = f.email.value.trim();
@@ -172,13 +174,13 @@ $("f").addEventListener("submit", async e => {
   if (!f.consent.checked) return err.textContent = "Tick the box so we can add you.";
 
   btn.disabled = true; btn.firstChild.textContent = "Sending ";
-  const body = new URLSearchParams({
-    event: EVENT.event,
-    name, instagram: "@" + ig, email
-  });
   try {
-    if (ENDPOINT) await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body });
-    $("done-msg").textContent = "Thanks " + name.split(" ")[0] + " — we've got your request for " + EVENT.name + ", " + EVENT.when + ".";
+    // One request per night, so each night has its own row in your list
+    for (const ev of nights) {
+      await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body: new URLSearchParams({ event: ev.event, name, instagram: "@" + ig, email }) });
+    }
+    $("done-msg").textContent = "Thanks " + name.split(" ")[0] + " \u2014 we've got your request for " +
+      nights.map(ev => ev.name + ", " + ev.when).join(" and ") + ".";
     document.getElementById("app").classList.add("sent");
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (_) {
