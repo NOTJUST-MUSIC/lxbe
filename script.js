@@ -127,16 +127,18 @@ if(location.hash)openPanel(location.hash);
    Add a show here: date (YYYY-MM-DD), title, city, image (4:5 flyer; without
    one, a branded poster is drawn from the title) and,
    optionally, end (last day of a multi-day show), venue (shown small, not in the
-   title), tickets (URL) or guestlist:true (links the card to /list/). A show
-   disappears automatically the day after its last date; with no upcoming shows the whole section is hidden. */
-const shows=[
-  {date:'2026-10-30',title:'The Players Club · Halloween Edition',city:'Barcelona, Spain',image:'assets/shows/players-club-halloween-2026.jpg',tickets:'https://oneforoneapp.com/events/yYqXqy'},
-  {date:'2026-11-14',end:'2026-11-15',title:'Soul Market BCN · Port Olímpic',city:'Barcelona, Spain',image:'assets/shows/soul-market-port-olimpic-2026.jpg'},
-  {date:'2026-11-20',title:'ZayLune x Toca Rouge · Sala Bikini',city:'Barcelona, Spain',guestlist:true},
-  {date:'2026-11-21',title:'The BCN Coffee Rave Festival Edition · Sea Sea Club',city:'Barcelona, Spain',image:'assets/shows/bcn-coffee-rave-festival-2026.jpg',tickets:'https://luma.com/k4k8goh5'},
-  {date:'2026-11-27',title:'The Players Club · Barcelona Pool House',city:'Barcelona, Spain'},
-  {date:'2026-11-28',title:'Akiro',venue:'Japanese Restaurant',city:'Barcelona, Spain'}
-];
+   title) and tickets (URL). Keep the list between the SHOWS markers as plain JSON (double quotes):
+   the NOTJUST app reads it to know your shows, and its Noches switch decides which ones have a
+   guest list. The "Guest list ✦" button then appears by itself on the show the form is open for.
+   A show disappears automatically the day after its last date; with no upcoming shows the whole section is hidden. */
+const shows=/*SHOWS-START*/[
+  {"date":"2026-10-30","title":"The Players Club · Halloween Edition","city":"Barcelona, Spain","image":"assets/shows/players-club-halloween-2026.jpg","tickets":"https://oneforoneapp.com/events/yYqXqy"},
+  {"date":"2026-11-14","end":"2026-11-15","title":"Soul Market BCN · Port Olímpic","city":"Barcelona, Spain","image":"assets/shows/soul-market-port-olimpic-2026.jpg"},
+  {"date":"2026-11-20","title":"ZayLune x Toca Rouge · Sala Bikini","city":"Barcelona, Spain"},
+  {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","tickets":"https://luma.com/k4k8goh5"},
+  {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain"},
+  {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"}
+]/*SHOWS-END*/;
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
 function renderShows(){
   const today=new Date();today.setHours(0,0,0,0);
@@ -230,3 +232,11 @@ const carousel=(()=>{
 
 renderShows();
 let showsResize;addEventListener('resize',()=>{clearTimeout(showsResize);showsResize=setTimeout(renderShows,200)});
+/* Guest list: ask the NOTJUST app which night the form at /list is open for, and give the
+   show on that date a "Guest list ✦" button. If the request fails, the shows simply have no button. */
+fetch('https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec?action=nights')
+  .then(r=>r.json()).then(r=>{
+    if(!r.next)return;
+    let hit=false;shows.forEach(s=>{if(s.date===r.next.date){s.guestlist=true;hit=true}});
+    if(hit)renderShows();
+  }).catch(()=>{});
