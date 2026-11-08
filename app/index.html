@@ -256,7 +256,7 @@ function load(quiet) {
   call("getGuests", [], r => {
     guests = r.guests; quota = r.quota;
     $("#refresh").classList.remove("spin");
-    $("#updated").textContent = "Actualizado " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) +
+    $("#updated").textContent = (r.who ? r.who + " \u00b7 " : "") + "Actualizado " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) +
       " \u00b7 te quedan " + quota + " correos hoy";
     render();
   }, e => {
