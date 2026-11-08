@@ -474,12 +474,20 @@ $("#bell").onclick = () => {
   Notification.requestPermission().then(async perm => {
     bellState();
     if (perm !== "granted") return toast("Sin permiso para avisos.");
+    toast("Registrando este m\u00f3vil\u2026");
+    const step = (msg, ms) => Promise.race([msg, new Promise((_, no) => setTimeout(() => no(new Error("tard\u00f3 demasiado")), ms))]);
     try {
-      const note = await saveSubscription(true);
-      const r = await api("testPush");
-      toast((note ? "Registro renovado (ten\u00eda otra clave). " : "") +
-        (r.sent ? "Avisos activados \u2726 Te llega uno de prueba" : "Avisos activados, pero el aviso de prueba fall\u00f3" + (r.log && r.log[0] ? " (" + r.log[r.log.length - 1].code + ")" : "")));
-    } catch (e) { if (e.message !== "Locked") toast("No se pudieron activar: " + e.message); }
+      const reg = await step(navigator.serviceWorker.ready, 10000);
+      const want = keyBytes(VAPID_PUBLIC);
+      let old = await reg.pushManager.getSubscription(), oldKey = "ninguno";
+      if (old) {
+        try { const k = new Uint8Array(old.options.applicationServerKey); oldKey = k.length === want.length && k.every((b, i) => b === want[i]) ? "igual" : "OTRA clave"; } catch (_) { oldKey = "?"; }
+        await step(old.unsubscribe(), 10000).catch(() => {});
+      }
+      const sub = await step(reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: want }), 15000);
+      await step(api("subscribe", { sub: JSON.stringify(sub) }), 20000);
+      toast("Registrado \u2713 (registro anterior: " + oldKey + ")");
+    } catch (e) { if (e.message !== "Locked") toast("Fallo: " + e.message); }
   });
 };
 </script>
