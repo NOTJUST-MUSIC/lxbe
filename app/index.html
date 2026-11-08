@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>NOTJUST List</title>
+<meta name="theme-color" content="#0b0b0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NOTJUST List">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0b; --ink:#f3ede2; --soft:#c9c3b8; --muted:#8f8a82; --line:#2a2826;
+    --field:#141312; --card:#121110; --red:#d62a1e; --ok:#f3ede2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--ink)}
+  body{font:15px/1.45 "Inter Tight",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;min-height:100svh}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  a{color:inherit}
+
+  header{position:sticky;top:0;z-index:5;background:rgba(11,11,11,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    padding:calc(14px + env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line)}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .brand img{width:92px;height:auto;display:block}
+  .kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  .kicker .star{color:var(--red);margin-left:6px}
+  .refresh{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;font-size:18px;display:grid;place-items:center;flex:none}
+  .refresh.spin span{display:inline-block;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .updated{font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.04em}
+
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 10px}
+  .tab{border:1px solid var(--line);border-radius:12px;padding:8px 2px 7px;text-align:center;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .tab b{display:block;font-family:"Instrument Serif",serif;font-weight:400;font-size:26px;line-height:1;letter-spacing:0;color:var(--ink);margin-bottom:2px}
+  .tab.on{border-color:var(--ink);color:var(--ink)}
+  .tab[data-f="Pending"].on{border-color:var(--red)}
+  .tab[data-f="Pending"] b{color:var(--red)}
+
+  .nights{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 10px;padding:0 16px;scrollbar-width:none}
+  .nights::-webkit-scrollbar{display:none}
+  .chip{flex:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--soft);white-space:nowrap}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:#0b0b0b}
+  .chip i{font-style:normal;opacity:.6;margin-left:4px}
+
+  #q{width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 14px;font:inherit;font-size:16px;outline:none}
+  #q::placeholder{color:var(--muted)}
+  #q:focus{border-color:var(--muted)}
+
+  main{padding:14px 16px calc(40px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;max-width:640px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .row{display:flex;gap:12px;align-items:flex-start}
+  .av{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex:none;
+    font-family:"Instrument Serif",serif;font-size:21px;color:var(--ink);background:#181715}
+  .info{flex:1;min-width:0}
+  .name{font-weight:600;font-size:17px;line-height:1.25}
+  .ig{display:inline-block;margin-top:2px;color:var(--red);text-decoration:none;font-weight:500}
+  .meta{color:var(--muted);font-size:13px;margin-top:3px;overflow-wrap:anywhere}
+  .meta a{text-decoration:none}
+  .night{margin-top:10px;padding:9px 11px;border-radius:10px;background:var(--field);font-size:13px;color:var(--soft)}
+  .night b{color:var(--ink);font-weight:600}
+  .pill{flex:none;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:5px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .pill.Pending{color:var(--red);border-color:rgba(214,42,30,.45)}
+  .pill.Confirmed{color:#0b0b0b;background:var(--ink);border-color:var(--ink)}
+  .pill.Declined{color:var(--muted)}
+  .sent{margin-top:8px;font-size:12px;color:var(--muted)}
+  .sent::before{content:"\2726  ";color:var(--red)}
+  .acts{display:flex;gap:8px;margin-top:12px}
+  .btn{flex:1;border-radius:999px;padding:12px 10px;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+  .btn.yes{background:var(--ink);color:#0b0b0b}
+  .btn.no{border:1px solid var(--red);color:var(--red)}
+  .btn.ghost{border:1px solid var(--line);color:var(--muted);font-weight:500}
+  .btn:disabled{opacity:.45}
+  .empty{text-align:center;color:var(--muted);padding:48px 0;font-family:"Instrument Serif",serif;font-style:italic;font-size:22px}
+
+  /* Confirm sheet */
+  .sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .2s}
+  .sheet.open{opacity:1;pointer-events:auto}
+  .sheet-box{width:100%;max-width:520px;background:#141312;border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;
+    padding:22px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(20px);transition:transform .2s}
+  .sheet.open .sheet-box{transform:none}
+  .sheet h2{font-family:"Instrument Serif",serif;font-weight:400;font-size:34px;line-height:1.05}
+  .sheet h2 em{color:var(--red)}
+  .sheet p{color:var(--soft);margin:10px 0 18px;font-size:14px;overflow-wrap:anywhere}
+  .sheet .acts{margin-top:0}
+
+  /* Lock screen: shown until this phone has your key */
+  .lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:none;flex-direction:column;justify-content:center;padding:32px 24px calc(32px + env(safe-area-inset-bottom))}
+  .locked .lock{display:flex}
+  .lock img{width:150px;height:auto;margin-bottom:28px}
+  .lock h2{font-family:"Instrument Serif",serif;font-weight:400;font-size:44px;line-height:1}
+  .lock h2 em{color:var(--red)}
+  .lock p{color:var(--muted);margin:14px 0 22px;font-size:14px}
+  .lock input{width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px;outline:none;margin-bottom:10px}
+  .lock .btn{width:100%;flex:none}
+  .lock .err{color:var(--red);font-size:13px;min-height:20px;margin-top:10px}
+  #toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;background:var(--ink);color:#0b0b0b;
+    padding:11px 16px;border-radius:999px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;max-width:92%;text-align:center}
+  #toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand">
+      <img src="../assets/email/notjust-logo-white.png" alt="NOTJUST">
+      <span class="kicker">The list<span class="star">&#x2726;</span></span>
+    </div>
+    <button class="refresh" id="refresh" aria-label="Actualizar"><span>&#x21bb;</span></button>
+  </div>
+  <div class="tabs">
+    <button class="tab" data-f="Pending"><b id="n-Pending">0</b>Pendientes</button>
+    <button class="tab" data-f="Confirmed"><b id="n-Confirmed">0</b>Dentro</button>
+    <button class="tab" data-f="Declined"><b id="n-Declined">0</b>Fuera</button>
+    <button class="tab" data-f="All"><b id="n-All">0</b>Todos</button>
+  </div>
+  <div class="nights" id="nights"></div>
+  <input id="q" type="search" placeholder="Buscar nombre, @instagram o email" autocomplete="off">
+  <div class="updated" id="updated">Cargando&#x2026;</div>
+</header>
+
+<main id="list"><div class="empty">Cargando&#x2026;</div></main>
+
+<div class="sheet" id="sheet">
+  <div class="sheet-box">
+    <h2 id="sheet-title"></h2>
+    <p id="sheet-text"></p>
+    <div class="acts">
+      <button class="btn ghost" id="sheet-cancel">Cancelar</button>
+      <button class="btn yes" id="sheet-ok">Enviar</button>
+    </div>
+  </div>
+</div>
+<div class="lock">
+  <img src="../assets/email/notjust-logo-white.png" alt="NOTJUST">
+  <h2>Private <em>list.</em></h2>
+  <p>This app is only for NOTJUST. Enter your key to open it.</p>
+  <form id="lock-form"><input id="lock-key" type="password" autocomplete="current-password" placeholder="Key"><button class="btn yes" type="submit">Open</button></form>
+  <div class="err" id="lock-err"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+const LABEL = { Pending: "Pendiente", Confirmed: "Dentro", Declined: "Fuera" };
+let guests = [], filter = "Pending", night = "", busy = false, quota = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nightOf = g => (g.event || "").split(" \u00b7 ")[0] || "Sin noche";
+
+/* Talks to your Google Apps Script (same URL as the form on notjust.music/list). */
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
+const KEY_STORE = "notjust-app-key";
+const store = { get() { try { return localStorage.getItem(KEY_STORE) || ""; } catch (_) { return ""; } },
+  set(v) { try { v ? localStorage.setItem(KEY_STORE, v) : localStorage.removeItem(KEY_STORE); } catch (_) {} } };
+/* First time: open notjust.music/app/#k=YOURKEY in Safari and add it to the home screen.
+   In Safari the key stays in the link so the home-screen icon carries it (iPhone keeps
+   home-screen apps' storage separate from Safari); inside the installed app it is saved and hidden. */
+(function takeKeyFromLink() {
+  const m = location.hash.match(/k=([A-Za-z0-9]+)/);
+  if (!m) return;
+  store.set(m[1]);
+  const installed = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+  if (installed) history.replaceState(null, "", location.pathname);
+})();
+const methods = { getGuests: "list", setStatus: "set" };
+
+function call(fn, args, ok, fail) {
+  const key = store.get();
+  if (!key) { lock(); return fail(new Error("Locked")); }
+  const body = new URLSearchParams({ action: methods[fn], key: key });
+  if (fn === "setStatus") { body.set("row", args[0]); body.set("status", args[1]); body.set("email", args[2]); }
+  fetch(ENDPOINT, { method: "POST", body: body })
+    .then(r => r.json())
+    .then(r => {
+      if (r.error === "Wrong key.") { store.set(""); lock("That key is not right."); return fail(new Error("Locked")); }
+      if (r.error) return fail(new Error(r.error));
+      ok(r);
+    })
+    .catch(() => fail(new Error("Sin conexi\u00f3n. Prueba otra vez.")));
+}
+
+function lock(msg) {
+  document.body.classList.add("locked");
+  $("#lock-err").textContent = msg || "";
+}
+$("#lock-form").onsubmit = e => {
+  e.preventDefault();
+  const v = $("#lock-key").value.trim();
+  if (!v) return;
+  store.set(v); $("#lock-key").value = "";
+  document.body.classList.remove("locked");
+  load();
+};
+
+function toast(t) {
+  const el = $("#toast"); el.textContent = t; el.classList.add("show");
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+function load(quiet) {
+  if (!quiet) $("#refresh").classList.add("spin");
+  call("getGuests", [], r => {
+    guests = r.guests; quota = r.quota;
+    $("#refresh").classList.remove("spin");
+    $("#updated").textContent = "Actualizado " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) +
+      " \u00b7 te quedan " + quota + " correos hoy";
+    render();
+  }, e => {
+    $("#refresh").classList.remove("spin");
+    if (e.message === "Locked") return;
+    if (!quiet) { $("#list").innerHTML = '<div class="empty">No se pudo cargar.</div>'; toast(e.message); }
+  });
+}
+
+function render() {
+  const inNight = guests.filter(g => !night || nightOf(g) === night);
+  const n = { Pending: 0, Confirmed: 0, Declined: 0 };
+  inNight.forEach(g => n[g.status]++);
+  Object.keys(n).forEach(k => $("#n-" + k).textContent = n[k]);
+  $("#n-All").textContent = inNight.length;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.f === filter));
+
+  // Night chips: every night that has people, in the order they first signed up
+  const nights = [...new Set(guests.slice().reverse().map(nightOf))];
+  if (night && nights.indexOf(night) < 0) night = "";
+  $("#nights").style.display = nights.length > 1 ? "" : "none";
+  $("#nights").innerHTML = [["", "Todas", guests.length]].concat(nights.map(x => [x, x, guests.filter(g => nightOf(g) === x).length]))
+    .map(([v, t, c]) => `<button class="chip${v === night ? " on" : ""}" data-n="${esc(v)}">${esc(t)}<i>${c}</i></button>`).join("");
+
+  const q = $("#q").value.trim().toLowerCase().replace(/^@/, "");
+  const list = inNight.filter(g => (filter === "All" || g.status === filter) &&
+    (!q || (g.name + " " + g.instagram + " " + g.email).toLowerCase().includes(q)));
+  $("#list").innerHTML = list.length ? list.map(card).join("")
+    : `<div class="empty">${filter === "Pending" && !q ? "Nadie esperando. \u2726" : "No hay nadie aqu\u00ed."}</div>`;
+}
+
+function card(g) {
+  const ini = (g.name || g.email || "?").trim().split(/\s+/).slice(0, 2).map(p => p[0]).join("").toUpperCase();
+  const ig = g.instagram
+    ? `<a class="ig" href="https://instagram.com/${encodeURIComponent(g.instagram)}" target="_blank" rel="noopener">@${esc(g.instagram)} \u2197</a>`
+    : '<div class="meta">Sin Instagram</div>';
+  const parts = (g.event || "").split(" \u00b7 ");
+  const acts = g.status === "Pending"
+    ? `<button class="btn no" data-act="Declined" data-row="${g.row}">Declinar</button><button class="btn yes" data-act="Confirmed" data-row="${g.row}">Confirmar</button>`
+    : `<button class="btn ghost" data-act="Pending" data-row="${g.row}">Volver a pendiente</button>`;
+  return `<div class="card" id="c${g.row}">
+    <div class="row">
+      <div class="av">${esc(ini)}</div>
+      <div class="info">
+        <div class="name">${esc(g.name || "Sin nombre")}</div>${ig}
+        <div class="meta"><a href="mailto:${esc(g.email)}">${esc(g.email)}</a>${g.when ? " \u00b7 " + esc(g.when) : ""}</div>
+      </div>
+      <span class="pill ${esc(g.status)}">${esc(LABEL[g.status])}</span>
+    </div>
+    ${g.event ? `<div class="night"><b>${esc(parts[0])}</b>${parts.length > 1 ? " \u00b7 " + esc(parts.slice(1).join(" \u00b7 ")) : ""}</div>` : ""}
+    ${g.sent ? `<div class="sent">${esc(g.sent)}</div>` : ""}
+    <div class="acts">${acts}</div>
+  </div>`;
+}
+
+/* Confirm / decline: asks first, because it emails the guest straight away */
+let pending = null;
+function ask(row, status) {
+  const g = guests.find(x => x.row === row); if (!g) return;
+  if (status === "Pending") return apply(g, status);
+  const yes = status === "Confirmed";
+  const already = g.sent && g.sent.indexOf(status + " email") === 0;
+  $("#sheet-title").innerHTML = yes ? "\u00bfDentro de <em>la lista?</em>" : "\u00bfEsta vez <em>no?</em>";
+  $("#sheet-text").textContent = (g.name || g.email) + " \u00b7 " + nightOf(g) + ". " +
+    (already ? "Ya le lleg\u00f3 este correo, no se le enviar\u00e1 otra vez." : "Le llegar\u00e1 el correo de " + (yes ? "confirmado" : "lista llena") + " a " + g.email + ".");
+  $("#sheet-ok").textContent = yes ? "Confirmar" : "Declinar";
+  $("#sheet-ok").className = "btn " + (yes ? "yes" : "no");
+  pending = { g, status };
+  $("#sheet").classList.add("open");
+}
+function closeSheet() { $("#sheet").classList.remove("open"); pending = null; }
+
+function apply(g, status) {
+  const buttons = document.querySelectorAll(`#c${g.row} .btn`);
+  buttons.forEach(b => b.disabled = true);
+  busy = true;
+  call("setStatus", [g.row, status, g.email], r => {
+    busy = false; g.status = r.status; g.sent = r.sent; quota = r.quota; render();
+    toast(status === "Pending" ? "Vuelto a pendiente"
+      : (status === "Confirmed" ? "Dentro \u2726 " : "Declinado \u00b7 ") + (r.emailed ? "correo enviado" : "sin correo nuevo"));
+  }, e => { busy = false; buttons.forEach(b => b.disabled = false); if (e.message !== "Locked") toast(e.message); });
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act],[data-f],[data-n]");
+  if (!t) return;
+  if (t.dataset.act) ask(Number(t.dataset.row), t.dataset.act);
+  else if (t.dataset.f) { filter = t.dataset.f; render(); }
+  else { night = t.dataset.n; render(); }
+});
+$("#sheet-ok").onclick = () => { const p = pending; closeSheet(); if (p) apply(p.g, p.status); };
+$("#sheet-cancel").onclick = closeSheet;
+$("#sheet").onclick = e => { if (e.target.id === "sheet") closeSheet(); };
+$("#q").oninput = render;
+$("#refresh").onclick = () => load();
+load();
+setInterval(() => { if (!busy && !pending && !document.hidden) load(true); }, 60000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && !busy) load(true); });
+
+</script>
+</body>
+</html>
