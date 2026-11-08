@@ -118,8 +118,8 @@
 <footer>it was never <span>just</span> music</footer>
 
 <script>
-/* The night comes from the NOTJUST app (Noches): the soonest night with an open guest list.
-   When that day is over it moves on to the next open night by itself. Nothing to edit here. */
+/* The nights come from the NOTJUST app (Noches): every show with its guest list ON on the soonest
+   date (several the same day -> the guest picks one). When that day is over it moves on by itself. */
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
 
 const $ = id => document.getElementById(id);
@@ -133,15 +133,24 @@ fetch(ENDPOINT + "?action=nights")
   .then(r => r.json())
   .then(r => {
     app.classList.remove("loading");
-    if (!r.next) return app.classList.add("isclosed");
-    EVENT = r.next;
-    const l = document.createElement("div");
-    l.className = "night";
-    const n = document.createElement("span"); n.className = "n"; n.textContent = EVENT.name;
-    const d = document.createElement("span"); d.className = "d"; d.textContent = EVENT.when;
-    const w = document.createElement("span"); w.className = "w"; w.textContent = [EVENT.venue, EVENT.city].filter(Boolean).join(" \u00b7 ");
-    l.append(n, d, w);
-    $("nights").replaceChildren(l);
+    const live = r.open || (r.next ? [r.next] : []);
+    if (!live.length) return app.classList.add("isclosed");
+    EVENT = live[0];
+    const many = live.length > 1;
+    $("nights-label").textContent = many ? "Pick your night" : "The night";
+    $("nights").classList.toggle("single", !many);
+    $("nights").replaceChildren(...live.map((ev, i) => {
+      const l = document.createElement("label");
+      l.className = "night";
+      const r = document.createElement("input");
+      r.type = "radio"; r.name = "night"; r.value = i; r.checked = i === 0;
+      r.addEventListener("change", () => { EVENT = live[i]; });
+      const n = document.createElement("span"); n.className = "n"; n.textContent = ev.name;
+      const d = document.createElement("span"); d.className = "d"; d.textContent = ev.when;
+      const w = document.createElement("span"); w.className = "w"; w.textContent = [ev.venue, ev.city].filter(Boolean).join(" \u00b7 ");
+      l.append(r, n, d, w);
+      return l;
+    }));
   })
   .catch(() => {
     app.classList.remove("loading");

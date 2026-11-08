@@ -232,11 +232,13 @@ const carousel=(()=>{
 
 renderShows();
 let showsResize;addEventListener('resize',()=>{clearTimeout(showsResize);showsResize=setTimeout(renderShows,200)});
-/* Guest list: ask the NOTJUST app which night the form at /list is open for, and give the
-   show on that date a "Guest list ✦" button. If the request fails, the shows simply have no button. */
+/* Guest list: ask the NOTJUST app which shows the form at /list is open for (all the shows with their
+   guest list ON on the next date) and give each one a "Guest list ✦" button. If the request fails,
+   the shows simply have no button. */
 fetch('https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec?action=nights')
   .then(r=>r.json()).then(r=>{
-    if(!r.next)return;
-    let hit=false;shows.forEach(s=>{if(s.date===r.next.date){s.guestlist=true;hit=true}});
+    const ids=(r.open||[]).map(n=>n.id);
+    const on=s=>r.open?ids.indexOf(s.date+' | '+s.title)>=0:!!(r.next&&r.next.date===s.date);
+    let hit=false;shows.forEach(s=>{if(on(s)){s.guestlist=true;hit=true}});
     if(hit)renderShows();
   }).catch(()=>{});
