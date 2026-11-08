@@ -446,11 +446,21 @@ function keyBytes(b64) {
   const s = atob((b64 + "=".repeat((4 - b64.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/"));
   return Uint8Array.from(s, c => c.charCodeAt(0));
 }
-async function saveSubscription() {
+// fresh = true (bell tap): drop this phone's old registration and make a new one with the current key.
+// Returns "renewed-other-key" if the old one had been made with a different key.
+async function saveSubscription(fresh) {
   const reg = await navigator.serviceWorker.ready;
-  const sub = (await reg.pushManager.getSubscription()) ||
-    (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(VAPID_PUBLIC) }));
+  let sub = await reg.pushManager.getSubscription(), note = "";
+  const want = keyBytes(VAPID_PUBLIC);
+  const sameKey = s => { try { const k = new Uint8Array(s.options.applicationServerKey); return k.length === want.length && k.every((b, i) => b === want[i]); } catch (_) { return true; } };
+  if (sub && (fresh || !sameKey(sub))) {
+    if (!sameKey(sub)) note = "renewed-other-key";
+    try { await sub.unsubscribe(); } catch (_) {}
+    sub = null;
+  }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: want });
   await api("subscribe", { sub: JSON.stringify(sub) });
+  return note;
 }
 function bellState() { $("#bell").classList.toggle("on", pushReady && Notification.permission === "granted"); }
 bellState();
@@ -465,9 +475,10 @@ $("#bell").onclick = () => {
     bellState();
     if (perm !== "granted") return toast("Sin permiso para avisos.");
     try {
-      await saveSubscription();
+      const note = await saveSubscription(true);
       const r = await api("testPush");
-      toast(r.sent ? "Avisos activados \u2726 Te llega uno de prueba" : "Avisos activados \u2726");
+      toast((note ? "Registro renovado (ten\u00eda otra clave). " : "") +
+        (r.sent ? "Avisos activados \u2726 Te llega uno de prueba" : "Avisos activados, pero el aviso de prueba fall\u00f3" + (r.log && r.log[0] ? " (" + r.log[r.log.length - 1].code + ")" : "")));
     } catch (e) { if (e.message !== "Locked") toast("No se pudieron activar: " + e.message); }
   });
 };
