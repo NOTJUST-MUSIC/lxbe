@@ -164,7 +164,7 @@
   <div class="updated" id="updated">Cargando&#x2026;</div>
   </div>
   <div class="nights-only nhead">
-    <p class="hint">Tus shows de la web. Los nuevos llegan con la guest list activada: apaga los que no tengan. El formulario muestra los activados de la pr&#xf3;xima fecha (si hay varios ese d&#xed;a, la gente elige) y cuando pasa el d&#xed;a salta solo a la siguiente.</p>
+    <p class="hint">Tus shows de la web. Activa la guest list en los que quieras: salen en el formulario y con bot&#xf3;n en la web. Al d&#xed;a siguiente de cada show se desactiva sola.</p>
   </div>
 </header>
 
@@ -378,7 +378,7 @@ function loadNights(quiet) {
 function renderNights() {
   const all = nightsData.nights, up = all.filter(n => !n.past), past = all.filter(n => n.past);
   let html = up.length ? up.map(nightCard).join("") : '<div class="empty">No hay shows pr\u00f3ximos en la web.</div>';
-  if (!(nightsData.live || []).length && up.length) html = '<div class="hint" style="text-align:center">Ning\u00fan show con guest list activada: el formulario sale cerrado.</div>' + html;
+  if (!(nightsData.live || []).length && up.length) html = '<div class="hint" style="text-align:center">Ninguna guest list activada: el formulario sale cerrado.</div>' + html;
   if (past.length) html += '<div class="sec">Pasadas</div>' + past.slice(0, 6).map(nightCard).join("");
   $("#nightsView").innerHTML = html;
 }

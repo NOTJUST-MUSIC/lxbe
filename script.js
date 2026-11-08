@@ -232,8 +232,8 @@ const carousel=(()=>{
 
 renderShows();
 let showsResize;addEventListener('resize',()=>{clearTimeout(showsResize);showsResize=setTimeout(renderShows,200)});
-/* Guest list: ask the NOTJUST app which shows the form at /list is open for (all the shows with their
-   guest list ON on the next date) and give each one a "Guest list ✦" button. If the request fails,
+/* Guest list: ask the NOTJUST app which shows have their guest list switched ON and give each one
+   a "Guest list ✦" button (each switches itself off the day after the show). If the request fails,
    the shows simply have no button. */
 fetch('https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec?action=nights')
   .then(r=>r.json()).then(r=>{
