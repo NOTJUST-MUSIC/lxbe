@@ -92,6 +92,41 @@
   .sheet p{color:var(--soft);margin:10px 0 18px;font-size:14px;overflow-wrap:anywhere}
   .sheet .acts{margin-top:0}
 
+  /* Invitados / Noches switch */
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px;padding:4px;border:1px solid var(--line);border-radius:999px}
+  .seg button{border-radius:999px;padding:8px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .seg button.on{background:var(--ink);color:#0b0b0b}
+  body[data-view="nights"] .guest-only{display:none !important}
+  body:not([data-view="nights"]) .nights-only{display:none !important}
+
+  /* Noches */
+  .nhead{margin-top:12px}
+  .nhead .btn{width:100%;flex:none}
+  .hint{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+  .sec{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:14px 2px 0}
+  .ncard .date{width:52px;flex:none;text-align:center;border:1px solid var(--line);border-radius:12px;padding:6px 0 5px}
+  .ncard .date b{display:block;font-family:"Instrument Serif",serif;font-weight:400;font-size:28px;line-height:1}
+  .ncard .date span{font-size:10px;letter-spacing:.16em;color:var(--muted)}
+  .ncard.past{opacity:.5}
+  .ncard.live{border-color:rgba(214,42,30,.6)}
+  .live-tag{display:inline-block;margin-top:8px;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
+  .ncard .acts{align-items:center}
+  .btn.small{flex:none;padding:10px 16px;font-size:11px}
+  .switch{flex:1;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--soft);cursor:pointer;user-select:none;-webkit-user-select:none}
+  .switch input{position:absolute;opacity:0;pointer-events:none}
+  .switch span{position:relative;width:46px;height:28px;flex:none;border-radius:999px;background:#2a2826;transition:background .2s}
+  .switch span::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+  .switch input:checked + span{background:var(--red)}
+  .switch input:checked + span::after{transform:translateX(18px);background:#fff}
+
+  /* Night editor */
+  .nform label.f{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  .nform label.f input{display:block;width:100%;margin-top:6px;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px 13px;font:inherit;font-size:16px;letter-spacing:0;text-transform:none;outline:none;-webkit-appearance:none;appearance:none;min-height:48px}
+  .nform .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .nform .switch{margin:4px 0 18px}
+  .nform .del{display:block;margin:16px auto 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:underline}
+  .sheet-box{max-height:92svh;overflow:auto}
+
   /* Lock screen: shown until this phone has your key */
   .lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:none;flex-direction:column;justify-content:center;padding:32px 24px calc(32px + env(safe-area-inset-bottom))}
   .locked .lock{display:flex}
@@ -116,6 +151,8 @@
     </div>
     <button class="refresh" id="refresh" aria-label="Actualizar"><span>&#x21bb;</span></button>
   </div>
+  <div class="seg"><button data-view="guests" class="on">Invitados</button><button data-view="nights">Noches</button></div>
+  <div class="guest-only">
   <div class="tabs">
     <button class="tab" data-f="Pending"><b id="n-Pending">0</b>Pendientes</button>
     <button class="tab" data-f="Confirmed"><b id="n-Confirmed">0</b>Dentro</button>
@@ -125,9 +162,15 @@
   <div class="nights" id="nights"></div>
   <input id="q" type="search" placeholder="Buscar nombre, @instagram o email" autocomplete="off">
   <div class="updated" id="updated">Cargando&#x2026;</div>
+  </div>
+  <div class="nights-only nhead">
+    <p class="hint">Tus shows de la web. Activa la guest list en los que quieras: el formulario muestra siempre el pr&#xf3;ximo activado y, cuando pasa su d&#xed;a, salta solo al siguiente.</p>
+  </div>
 </header>
 
-<main id="list"><div class="empty">Cargando&#x2026;</div></main>
+<main id="list" class="guest-only"><div class="empty">Cargando&#x2026;</div></main>
+<main id="nightsView" class="nights-only"><div class="empty">Cargando&#x2026;</div></main>
+
 
 <div class="sheet" id="sheet">
   <div class="sheet-box">
@@ -172,19 +215,22 @@ const store = { get() { try { return localStorage.getItem(KEY_STORE) || ""; } ca
 })();
 const methods = { getGuests: "list", setStatus: "set" };
 
-function call(fn, args, ok, fail) {
+function api(action, params) {
   const key = store.get();
-  if (!key) { lock(); return fail(new Error("Locked")); }
-  const body = new URLSearchParams({ action: methods[fn], key: key });
-  if (fn === "setStatus") { body.set("row", args[0]); body.set("status", args[1]); body.set("email", args[2]); }
-  fetch(ENDPOINT, { method: "POST", body: body })
+  if (!key) { lock(); return Promise.reject(new Error("Locked")); }
+  const body = new URLSearchParams(Object.assign({ action: action, key: key }, params || {}));
+  return fetch(ENDPOINT, { method: "POST", body: body })
+    .catch(() => { throw new Error("Sin conexi\u00f3n. Prueba otra vez."); })
     .then(r => r.json())
     .then(r => {
-      if (r.error === "Wrong key.") { store.set(""); lock("That key is not right."); return fail(new Error("Locked")); }
-      if (r.error) return fail(new Error(r.error));
-      ok(r);
-    })
-    .catch(() => fail(new Error("Sin conexi\u00f3n. Prueba otra vez.")));
+      if (r.error === "Wrong key.") { store.set(""); lock("That key is not right."); throw new Error("Locked"); }
+      if (r.error) throw new Error(r.error);
+      return r;
+    });
+}
+
+function call(fn, args, ok, fail) {
+  api(methods[fn], fn === "setStatus" ? { row: args[0], status: args[1], email: args[2] } : {}).then(ok, fail);
 }
 
 function lock(msg) {
@@ -305,11 +351,67 @@ $("#sheet-ok").onclick = () => { const p = pending; closeSheet(); if (p) apply(p
 $("#sheet-cancel").onclick = closeSheet;
 $("#sheet").onclick = e => { if (e.target.id === "sheet") closeSheet(); };
 $("#q").oninput = render;
-$("#refresh").onclick = () => load();
+$("#refresh").onclick = () => document.body.dataset.view === "nights" ? loadNights(true) : load();
 load();
-setInterval(() => { if (!busy && !pending && !document.hidden) load(true); }, 60000);
+setInterval(() => { if (!busy && !pending && !document.hidden && document.body.dataset.view !== "nights") load(true); }, 60000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden && !busy) load(true); });
 
+
+/* ---------- NOCHES: you choose which night the guest list is for ---------- */
+let nightsData = null;
+document.body.dataset.view = "guests";
+
+function setView(v) {
+  document.body.dataset.view = v;
+  document.querySelectorAll(".seg button").forEach(b => b.classList.toggle("on", b.dataset.view === v));
+  window.scrollTo(0, 0);
+  if (v === "nights") loadNights(!!nightsData); else load(true);
+}
+
+function loadNights(quiet) {
+  if (!quiet) $("#nightsView").innerHTML = '<div class="empty">Cargando\u2026</div>';
+  $("#refresh").classList.add("spin");
+  api("nights").then(r => { $("#refresh").classList.remove("spin"); nightsData = r; renderNights(); },
+    e => { $("#refresh").classList.remove("spin"); if (e.message !== "Locked") { toast(e.message); if (!nightsData) $("#nightsView").innerHTML = '<div class="empty">No se pudo cargar.</div>'; } });
+}
+
+function renderNights() {
+  const all = nightsData.nights, up = all.filter(n => !n.past), past = all.filter(n => n.past);
+  let html = up.length ? up.map(nightCard).join("") : '<div class="empty">No hay shows pr\u00f3ximos en la web.</div>';
+  if (!nightsData.next && up.length) html = '<div class="hint" style="text-align:center">Ning\u00fan show con guest list activada: el formulario sale cerrado.</div>' + html;
+  if (past.length) html += '<div class="sec">Pasadas</div>' + past.slice(0, 6).map(nightCard).join("");
+  $("#nightsView").innerHTML = html;
+}
+
+function nightCard(n) {
+  const live = nightsData.next === n.id;
+  return `<div class="card ncard${n.past ? " past" : ""}${live ? " live" : ""}">
+    <div class="row">
+      <div class="date"><b>${esc(n.day)}</b><span>${esc(n.month)}</span></div>
+      <div class="info">
+        <div class="name">${esc(n.name)}</div>
+        <div class="meta">${esc(n.when)}${n.venue ? " \u00b7 " + esc(n.venue) : ""}</div>
+        <div class="meta">${n.signups} apuntado${n.signups === 1 ? "" : "s"}</div>
+        ${live ? '<span class="live-tag">\u25cf En el formulario ahora</span>' : ""}
+      </div>
+    </div>
+    ${n.past ? "" : `<div class="acts"><label class="switch"><input type="checkbox" data-open="${esc(n.id)}"${n.open ? " checked" : ""}><span></span>${n.open ? "Guest list activada" : "Sin guest list"}</label></div>`}
+  </div>`;
+}
+
+document.addEventListener("click", e => {
+  const v = e.target.closest("[data-view]");
+  if (v) setView(v.dataset.view);
+});
+document.addEventListener("change", e => {
+  const t = e.target.closest("[data-open]");
+  if (!t) return;
+  const open = t.checked;
+  t.disabled = true;
+  api("openNight", { id: t.dataset.open, open: open ? "true" : "false" })
+    .then(r => { nightsData = r; renderNights(); toast(open ? "Guest list activada \u2726" : "Guest list desactivada"); },
+      e => { t.checked = !open; t.disabled = false; if (e.message !== "Locked") toast(e.message); });
+});
 </script>
 </body>
 </html>

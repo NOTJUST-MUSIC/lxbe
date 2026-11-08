@@ -72,6 +72,7 @@
   footer span{color:var(--red);font-style:normal}
   .sent .formbox{display:none}.sent .done{display:block}
   .isclosed .formbox{display:none}.isclosed .closed{display:block}
+  .loading .night .n{color:var(--muted)!important}
 </style>
 </head>
 <body>
@@ -117,46 +118,42 @@
 <footer>it was never <span>just</span> music</footer>
 
 <script>
-/* ===== YOUR NIGHTS =====
-   until: last day of the event (YYYY-MM-DD). The night disappears automatically the day after.
-   open:false hides a night without deleting it. Add new nights by copying a line. */
-const EVENTS = [
-  { name: "Soul Market BCN",                    when: "Sat 14 – Sun 15 Nov", venue: "Port Olímpic",         city: "Barcelona", until: "2026-11-15", open: false },
-  { name: "ZayLune × Toca Rouge",               when: "Fri 20 Nov · Late",   venue: "Sala Bikini",          city: "Barcelona", until: "2026-11-20", open: true },
-  { name: "BCN Coffee Rave · Festival Edition", when: "Sat 21 Nov",          venue: "Sea Sea Club",         city: "Barcelona", until: "2026-11-21", open: false },
-  { name: "The Players Club",                   when: "Fri 27 Nov",          venue: "Barcelona Pool House", city: "Barcelona", until: "2026-11-27", open: false },
-  { name: "Akiro BCN Anniversary",              when: "Sat 28 Nov",          venue: "TBA",                  city: "Barcelona", until: "2026-11-28", open: false },
-];
+/* The night comes from the NOTJUST app (Noches): the soonest night with an open guest list.
+   When that day is over it moves on to the next open night by itself. Nothing to edit here. */
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
-/* ======================= */
 
 const $ = id => document.getElementById(id);
-const today = new Date(); today.setHours(0, 0, 0, 0);
-const live = EVENTS.filter(e => e.open && new Date(e.until + "T23:59:59") >= today);
-let EVENT = live[0];
-if (!live.length) document.getElementById("app").classList.add("isclosed");
-live.forEach((ev, i) => {
-  const l = document.createElement("label");
-  l.className = "night";
-  const r = document.createElement("input");
-  r.type = "radio"; r.name = "night"; r.value = i; r.checked = i === 0;
-  r.addEventListener("change", () => { EVENT = live[i]; });
-  const n = document.createElement("span"); n.className = "n"; n.textContent = ev.name;
-  const d = document.createElement("span"); d.className = "d"; d.textContent = ev.when;
-  const w = document.createElement("span"); w.className = "w"; w.textContent = ev.venue + " · " + ev.city;
-  l.append(r, n, d, w);
-  $("nights").append(l);
-});
-if (live.length === 1) {               // only one night open: show it, no choice needed
-  $("nights-label").textContent = "The night";
-  $("nights").classList.add("single");
-}
+const app = document.getElementById("app");
+let EVENT = null;
+app.classList.add("loading");
+$("nights-label").textContent = "The night";
+$("nights").classList.add("single");
+$("nights").innerHTML = '<div class="night"><span class="n">Loading\u2026</span></div>';
+fetch(ENDPOINT + "?action=nights")
+  .then(r => r.json())
+  .then(r => {
+    app.classList.remove("loading");
+    if (!r.next) return app.classList.add("isclosed");
+    EVENT = r.next;
+    const l = document.createElement("div");
+    l.className = "night";
+    const n = document.createElement("span"); n.className = "n"; n.textContent = EVENT.name;
+    const d = document.createElement("span"); d.className = "d"; d.textContent = EVENT.when;
+    const w = document.createElement("span"); w.className = "w"; w.textContent = [EVENT.venue, EVENT.city].filter(Boolean).join(" \u00b7 ");
+    l.append(n, d, w);
+    $("nights").replaceChildren(l);
+  })
+  .catch(() => {
+    app.classList.remove("loading");
+    $("nights").innerHTML = '<div class="night"><span class="n">Couldn\u2019t load the night. Refresh the page.</span></div>';
+  });
 
 $("f").addEventListener("submit", async e => {
   e.preventDefault();
   const f = e.target, err = $("err"), btn = $("btn");
   err.textContent = "";
   if (f.website.value) return;                       // bot trap
+  if (!EVENT) return err.textContent = "The night is still loading. Try again in a second.";
   const name = f.name.value.trim();
   const ig = f.instagram.value.trim().replace(/^@+/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "");
   const email = f.email.value.trim();
@@ -167,7 +164,7 @@ $("f").addEventListener("submit", async e => {
 
   btn.disabled = true; btn.firstChild.textContent = "Sending ";
   const body = new URLSearchParams({
-    event: EVENT.name + " · " + EVENT.when + " · " + EVENT.venue,
+    event: EVENT.event,
     name, instagram: "@" + ig, email
   });
   try {
