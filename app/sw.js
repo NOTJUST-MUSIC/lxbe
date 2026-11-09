@@ -4,6 +4,12 @@
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
 
 self.addEventListener("install", () => self.skipWaiting());
+
+/* Always open the latest version of the app (skip the browser's 10-minute cache for the page itself) */
+self.addEventListener("fetch", e => {
+  if (e.request.mode !== "navigate") return;
+  e.respondWith(fetch(e.request.url, { cache: "no-store", credentials: "same-origin" }).catch(() => fetch(e.request)));
+});
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
 
 function getKey() {
