@@ -45,6 +45,7 @@
   .tab[data-f="Pending"].on{border-color:var(--red)}
   .tab[data-f="Pending"] b{color:var(--red)}
 
+  .flabel{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0 2px 6px}
   .nights{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 10px;padding:0 16px;scrollbar-width:none}
   .nights::-webkit-scrollbar{display:none}
   .chip{flex:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--soft);white-space:nowrap}
@@ -167,6 +168,7 @@
     <button class="tab" data-f="Declined"><b id="n-Declined">0</b>Fuera</button>
     <button class="tab" data-f="All"><b id="n-All">0</b>Todos</button>
   </div>
+  <div class="flabel" id="nights-label">Fiesta</div>
   <div class="nights" id="nights"></div>
   <input id="q" type="search" placeholder="Buscar nombre, @instagram o email" autocomplete="off">
   <div class="updated" id="updated">Cargando&#x2026;</div>
@@ -311,7 +313,7 @@ function drawList() {
   // Night chips: every night that has people, in the order they first signed up
   const nights = [...new Set(guests.slice().reverse().map(nightOf))];
   if (night && nights.indexOf(night) < 0) night = "";
-  $("#nights").style.display = nights.length > 1 ? "" : "none";
+  $("#nights").style.display = $("#nights-label").style.display = nights.length ? "" : "none";
   $("#nights").innerHTML = [["", "Todas", guests.length]].concat(nights.map(x => [x, x, guests.filter(g => nightOf(g) === x).length]))
     .map(([v, t, c]) => `<button class="chip${v === night ? " on" : ""}" data-n="${esc(v)}">${esc(t)}<i>${c}</i></button>`).join("");
 
