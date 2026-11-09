@@ -144,7 +144,7 @@ fetch(ENDPOINT + "?action=nights")
       const l = document.createElement("label");
       l.className = "night";
       const r = document.createElement("input");
-      r.type = "checkbox"; r.name = "night"; r.value = i; r.checked = i === 0;
+      r.type = "checkbox"; r.name = "night"; r.value = i; r.checked = !many;   // several nights: none ticked, the guest picks
       const n = document.createElement("span"); n.className = "n"; n.textContent = ev.name;
       const d = document.createElement("span"); d.className = "d"; d.textContent = ev.when;
       const w = document.createElement("span"); w.className = "w"; w.textContent = [ev.venue, ev.city].filter(Boolean).join(" \u00b7 ");
