@@ -117,7 +117,6 @@
   .live-tag{display:inline-block;margin-top:8px;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
   .ncard .acts{align-items:center}
   .btn.small{flex:none;padding:10px 16px;font-size:11px}
-  .passall{width:100%;flex:none;margin-bottom:2px}
   .switch{flex:1;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--soft);cursor:pointer;user-select:none;-webkit-user-select:none}
   .switch input{position:absolute;opacity:0;pointer-events:none}
   .switch span{position:relative;width:46px;height:28px;flex:none;border-radius:999px;background:#2a2826;transition:background .2s}
@@ -312,10 +311,7 @@ function render() {
   const q = $("#q").value.trim().toLowerCase().replace(/^@/, "");
   const list = inNight.filter(g => (filter === "All" || g.status === filter) &&
     (!q || (g.name + " " + g.instagram + " " + g.email).toLowerCase().includes(q)));
-  // Confirmed before the pass existed: offer to send it to all of them at once
-  const noPass = guests.filter(g => g.needsPass).length;
-  const passBar = filter === "Confirmed" && noPass ? `<button class="btn yes passall" data-passall="1">Enviar el pase a ${noPass} confirmado${noPass === 1 ? "" : "s"}</button>` : "";
-  $("#list").innerHTML = passBar + (list.length ? list.map(card).join("")
+  $("#list").innerHTML = (list.length ? list.map(card).join("")
     : `<div class="empty">${filter === "Pending" && !q ? "Nadie esperando. \u2726" : "No hay nadie aqu\u00ed."}</div>`);
 }
 
@@ -327,7 +323,7 @@ function card(g) {
   const parts = (g.event || "").split(" \u00b7 ");
   const acts = g.status === "Pending"
     ? `<button class="btn no" data-act="Declined" data-row="${g.row}">Declinar</button><button class="btn yes" data-act="Confirmed" data-row="${g.row}">Confirmar</button>`
-    : (g.needsPass ? `<button class="btn yes" data-pass="${g.row}">Enviar pase</button>` : "") +
+    : (g.canResend ? `<button class="btn ghost" data-pass="${g.row}">Reenviar pase</button>` : "") +
       `<button class="btn ghost" data-act="Pending" data-row="${g.row}">Volver a pendiente</button>`;
   return `<div class="card" id="c${g.row}">
     <div class="row">
@@ -512,22 +508,20 @@ $("#bell").onclick = () => {
   });
 };
 
-/* Send the pass to guests confirmed before it existed (one, or all at once) */
+/* Resend the confirmed email with the pass to one guest (lost it, didn't arrive...) */
 document.addEventListener("click", e => {
-  const one = e.target.closest("[data-pass]"), all = e.target.closest("[data-passall]");
-  if (!one && !all) return;
-  const g = one && guests.find(x => x.row === Number(one.dataset.pass));
-  const n = guests.filter(x => x.needsPass).length;
-  if (!confirm(g ? "\u00bfEnviar el pase a " + (g.name || g.email) + "?\nLe llega otra vez el correo de confirmado, ahora con el pase."
-                 : "\u00bfEnviar el pase a " + n + " confirmado" + (n === 1 ? "" : "s") + "?\nLes llega otra vez el correo de confirmado, ahora con el pase.")) return;
-  const btn = one || all; btn.disabled = true;
+  const one = e.target.closest("[data-pass]");
+  if (!one) return;
+  const g = guests.find(x => x.row === Number(one.dataset.pass));
+  if (!g || !confirm("\u00bfReenviar el pase a " + (g.name || g.email) + "?\nLe llega otra vez el correo de confirmado con su pase a " + g.email + ".")) return;
+  one.disabled = true;
   changes++; inFlight++; busy = true;
-  api("sendPass", g ? { row: g.row, email: g.email } : {}).then(r => {
+  api("sendPass", { row: g.row, email: g.email }).then(r => {
     inFlight--; busy = inFlight > 0; changes++;
-    toast(r.sent ? "Pase enviado a " + r.sent + " \u2726" + (r.left ? " \u00b7 " + r.left + " para ma\u00f1ana (l\u00edmite de correos)" : "") : "Nadie pendiente de pase");
+    toast(r.sent ? "Pase reenviado \u2726" : "No se pudo: l\u00edmite de correos de hoy");
     load(true);
   }, err => {
-    inFlight--; busy = inFlight > 0; changes++; btn.disabled = false;
+    inFlight--; busy = inFlight > 0; changes++; one.disabled = false;
     if (err.message !== "Locked") toast(err.message);
   });
 });
