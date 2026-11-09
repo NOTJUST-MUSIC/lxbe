@@ -270,9 +270,16 @@ function toast(t) {
   clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 3000);
 }
 
+/* Changes made in the app bump this; a list that was requested before a change is out of date. */
+let changes = 0, inFlight = 0;
 function load(quiet) {
   if (!quiet) $("#refresh").classList.add("spin");
+  const asked = changes;
   call("getGuests", [], r => {
+    if (asked !== changes || inFlight) {           // you changed something meanwhile: ask again
+      if (!inFlight) setTimeout(() => load(true), 300);
+      return;
+    }
     guests = r.guests; quota = r.quota;
     setBadge(guests.filter(g => g.status === "Pending").length);
     $("#refresh").classList.remove("spin");
@@ -350,14 +357,23 @@ function ask(row, status) {
 function closeSheet() { $("#sheet").classList.remove("open"); pending = null; }
 
 function apply(g, status) {
-  const buttons = document.querySelectorAll(`#c${g.row} .btn`);
-  buttons.forEach(b => b.disabled = true);
-  busy = true;
-  call("setStatus", [g.row, status, g.email], r => {
-    busy = false; g.status = r.status; g.sent = r.sent; quota = r.quota; render();
+  // Move the guest straight away; put them back if the change fails
+  const row = g.row, before = { status: g.status, sent: g.sent };
+  const live = () => guests.find(x => x.row === row) || g;
+  changes++; inFlight++; busy = true;
+  live().status = status;
+  render();
+  call("setStatus", [row, status, g.email], r => {
+    inFlight--; busy = inFlight > 0; changes++;
+    const x = live(); x.status = r.status; x.sent = r.sent; quota = r.quota; render();
     toast(status === "Pending" ? "Vuelto a pendiente"
       : (status === "Confirmed" ? "Dentro \u2726 " : "Declinado \u00b7 ") + (r.emailed ? "correo enviado" : "sin correo nuevo"));
-  }, e => { busy = false; buttons.forEach(b => b.disabled = false); if (e.message !== "Locked") toast(e.message); });
+    if (!inFlight) load(true);
+  }, e => {
+    inFlight--; busy = inFlight > 0; changes++;
+    const x = live(); x.status = before.status; x.sent = before.sent; render();
+    if (e.message !== "Locked") toast("No se guard\u00f3: " + e.message);
+  });
 }
 
 document.addEventListener("click", e => {
