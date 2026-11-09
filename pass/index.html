@@ -145,7 +145,11 @@ $("cal").onclick = () => {
     "DTEND;VALUE=DATE:" + next(P.end || P.d),
     "SUMMARY:" + esc(P.e + " · NOTJUST guest list"),
     "LOCATION:" + esc([P.v, P.c].filter(Boolean).join(", ")),
-    "DESCRIPTION:" + esc("You're on the NOTJUST guest list. Give your name at the door and bring your ID. See you inside."),
+    "DESCRIPTION:" + esc("You're on the NOTJUST guest list. Show your pass at the door and have your ID ready. See you inside."),
+    // Reminder at 12:00 on the day of the party
+    "BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER;RELATED=START:PT12H",
+    "DESCRIPTION:" + esc("Tonight: " + P.e + ". You're on the NOTJUST guest list \u2726"),
+    "END:VALARM",
     "END:VEVENT", "END:VCALENDAR"
   ].join("\r\n");
   const a = document.createElement("a");
