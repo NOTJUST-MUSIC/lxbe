@@ -204,7 +204,8 @@ const LABEL = { Pending: "Pendiente", Confirmed: "Dentro", Declined: "Fuera" };
 let guests = [], filter = "Pending", night = "", busy = false, quota = null;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const nightOf = g => (g.event || "").split(" \u00b7 ")[0] || "Sin noche";
+// Same night written "x" or "\u00d7" (older sign-ups) counts as one
+const nightOf = g => (g.event || "").split(" \u00b7 ")[0].replace(/\s\u00d7\s/g, " x ") || "Sin noche";
 
 /* Talks to your Google Apps Script (same URL as the form on notjust.music/list). */
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
