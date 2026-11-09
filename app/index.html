@@ -294,7 +294,13 @@ function load(quiet) {
   });
 }
 
+/* Redraw the list without losing your place: the page stays where you were scrolled to */
 function render() {
+  const y = window.scrollY;
+  drawList();
+  if (y) { window.scrollTo(0, y); requestAnimationFrame(() => window.scrollTo(0, y)); }
+}
+function drawList() {
   const inNight = guests.filter(g => !night || nightOf(g) === night);
   const n = { Pending: 0, Confirmed: 0, Declined: 0 };
   inNight.forEach(g => n[g.status]++);
@@ -438,7 +444,7 @@ function nightCard(n) {
 }
 
 document.addEventListener("click", e => {
-  const v = e.target.closest("[data-view]");
+  const v = e.target.closest(".seg button[data-view]");   // only the Invitados / Noches switch (the page itself also carries data-view)
   if (v) setView(v.dataset.view);
 });
 document.addEventListener("change", e => {
