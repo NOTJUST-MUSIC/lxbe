@@ -135,7 +135,7 @@ const shows=/*SHOWS-START*/[
   {"date":"2026-10-30","title":"The Players Club · Halloween Edition","city":"Barcelona, Spain","image":"assets/shows/players-club-halloween-2026.jpg","tickets":"https://oneforoneapp.com/events/yYqXqy"},
   {"date":"2026-11-14","end":"2026-11-15","title":"Soul Market BCN · Port Olímpic","city":"Barcelona, Spain","image":"assets/shows/soul-market-port-olimpic-2026.jpg"},
   {"date":"2026-11-20","title":"ZayLune x Toca Rouge · Sala Bikini","city":"Barcelona, Spain"},
-  {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","tickets":"https://luma.com/k4k8goh5"},
+  {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","time":"Daytime"},
   {"date":"2026-11-21","title":"The Players Club · Bastian Beach","city":"Barcelona, Spain"},
   {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain"},
   {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"}
@@ -148,8 +148,8 @@ function renderShows(){
   if(!upcoming.length)return;
   const day=d=>new Date(d+'T00:00:00'),part=(d,o)=>new Intl.DateTimeFormat('en-GB',o).format(day(d));
   /* "FRI · 30 OCT 2026", or "SAT 14 – SUN 15 NOV 2026" for a multi-day show in one month. */
-  const when=s=>!s.end?`${part(s.date,{weekday:'short'})} · ${part(s.date,{day:'2-digit',month:'short',year:'numeric'})}`
-    :`${part(s.date,{weekday:'short',day:'2-digit'})} – ${part(s.end,{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}`.replace(/,/g,'');
+  const when=s=>(s.time?w=>w+' · '+s.time:w=>w)(!s.end?`${part(s.date,{weekday:'short'})} · ${part(s.date,{day:'2-digit',month:'short',year:'numeric'})}`
+    :`${part(s.date,{weekday:'short',day:'2-digit'})} – ${part(s.end,{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}`.replace(/,/g,''));
   /* On phones the city is only added when the show is outside Barcelona (home base). */
   /* An optional `venue` field names the place without adding it to the white title. */
   const name=s=>s.title.split(' · ')[0],city=s=>s.city.split(',')[0].trim(),
