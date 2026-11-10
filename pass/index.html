@@ -51,6 +51,12 @@
   footer span{color:var(--red);font-style:normal}
   .bad .shot,.bad .actions,.bad .note{display:none}
   body:not(.bad) .missing{display:none}
+  .viewer{position:fixed;inset:0;z-index:10;background:rgba(11,11,11,.96);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 20px calc(24px + env(safe-area-inset-bottom))}
+  .viewer.open{display:flex}
+  .viewer img{max-width:100%;max-height:72svh;border-radius:16px;-webkit-touch-callout:default;user-select:auto;-webkit-user-select:auto}
+  .viewer p{font-size:14px;color:var(--soft);text-align:center}
+  .viewer p b{color:var(--ink)}
+  .viewer .btn{min-width:160px}
 </style>
 </head>
 <body>
@@ -84,6 +90,11 @@
     <button class="btn ghost" id="cal" type="button">Add to calendar</button>
   </div>
   <p class="note">Tip: save it now. Signal at the door can be bad.</p>
+  <div class="viewer" id="viewer">
+    <img id="viewer-img" alt="Your NOTJUST pass">
+    <p>Press and hold the image, then tap <b>Save to Photos</b>.</p>
+    <button class="btn ghost" type="button">Done</button>
+  </div>
   <p class="missing">This pass link is incomplete. Open it again from your confirmation email.</p>
   <footer translate="no">it was never <span>just</span> music</footer>
 
@@ -109,53 +120,49 @@ if (!P || !P.n || !P.e) {
   document.title = "You're on the list — " + P.e;
 }
 
-/* Save pass: the card as an image (share sheet on iPhone -> Save Image; download elsewhere) */
-$("save").onclick = async () => {
-  const btn = $("save"); btn.disabled = true;
-  try {
-    await document.fonts.ready;
-    const canvas = await html2canvas($("shot"), { backgroundColor: "#0b0b0b", scale: 3, useCORS: true });
-    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
-    const file = new File([blob], "NOTJUST-pass.png", { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "NOTJUST guest list pass" }).catch(() => {});
-    } else {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    }
-  } catch (_) {
-    alert("Couldn't save it. Take a screenshot instead.");
+/* Save pass. The image is drawn as soon as the page opens, so the tap can open the share sheet
+   straight away (iPhone only allows it right at the tap). If sharing isn't possible (e.g. inside the
+   Gmail app), the image opens big so it can be long-pressed and saved to Photos. */
+let passImg = null;   // { blob, url }
+const drawPass = () => document.fonts.ready
+  .then(() => html2canvas($("shot"), { backgroundColor: "#0b0b0b", scale: 3, useCORS: true }))
+  .then(c => new Promise(r => c.toBlob(b => r({ blob: b, url: c.toDataURL("image/png") }), "image/png")))
+  .then(img => (passImg = img));
+let drawing = null;
+if (P && P.n) addEventListener("load", () => { drawing = drawPass().catch(() => null); });
+
+function showImage() {
+  $("viewer-img").src = passImg.url;
+  $("viewer").classList.add("open");
+}
+$("viewer").onclick = e => { if (e.target.id !== "viewer-img") $("viewer").classList.remove("open"); };
+
+$("save").onclick = () => {
+  if (!passImg) {
+    // Not drawn yet: finish drawing, then show it to long-press (the tap is gone by then)
+    const btn = $("save"); btn.disabled = true;
+    (drawing || drawPass()).then(() => { btn.disabled = false; if (passImg) showImage(); else alert("Couldn't save it. Take a screenshot instead."); },
+      () => { btn.disabled = false; alert("Couldn't save it. Take a screenshot instead."); });
+    return;
   }
-  btn.disabled = false;
+  const file = new File([passImg.blob], "NOTJUST-pass.png", { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: "NOTJUST guest list pass" }).catch(err => {
+      if (!err || err.name !== "AbortError") showImage();   // AbortError = the guest just closed the share sheet
+    });
+  } else {
+    showImage();
+  }
 };
 
-/* Add to calendar: an all-day event on the night (or nights) */
+/* Add to calendar. iPhone only offers "Add to Calendar" for a real calendar file opened as a page,
+   so the event is served by the guest list script (same details, nothing personal). */
+const ICS_URL = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
 $("cal").onclick = () => {
   if (!P || !/^\d{4}-\d{2}-\d{2}$/.test(P.d || "")) return alert("No date for this night.");
-  const day = s => s.replace(/-/g, "");
-  const next = s => { const t = new Date(s + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + 1); return t.toISOString().slice(0, 10).replace(/-/g, ""); };
-  const esc = s => String(s || "").replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
-  const ics = [
-    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//NOTJUST//Guest list//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-    "BEGIN:VEVENT",
-    "UID:" + day(P.d) + "-" + Math.random().toString(36).slice(2) + "@notjust.music",
-    "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z",
-    "DTSTART;VALUE=DATE:" + day(P.d),
-    "DTEND;VALUE=DATE:" + next(P.end || P.d),
-    "SUMMARY:" + esc(P.e + " · NOTJUST guest list"),
-    "LOCATION:" + esc([P.v, P.c].filter(Boolean).join(", ")),
-    "DESCRIPTION:" + esc("You're on the NOTJUST guest list. Show your pass at the door and have your ID ready. See you inside."),
-    // Reminder at 12:00 on the day of the party
-    "BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER;RELATED=START:PT12H",
-    "DESCRIPTION:" + esc("Tonight: " + P.e + ". You're on the NOTJUST guest list \u2726"),
-    "END:VALARM",
-    "END:VEVENT", "END:VCALENDAR"
-  ].join("\r\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
-  a.download = "NOTJUST-" + day(P.d) + ".ics"; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  // ("c" is reserved by Google in these links, so venue and city travel together in "v")
+  const q = new URLSearchParams({ action: "ics", e: P.e, d: P.d, end: P.end || "", v: [P.v, P.c].filter(Boolean).join(", ") });
+  location.href = ICS_URL + "?" + q.toString();
 };
 </script>
 </body>
