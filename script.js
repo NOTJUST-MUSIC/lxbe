@@ -164,10 +164,9 @@ function renderShows(){
     return `<div class="show-poster" aria-hidden="true"><span class="show-poster-date">${part(s.date,{day:'2-digit',month:'short'})}</span>`+
       `<strong>${name}</strong><span class="show-poster-venue">${[place(s),s.city.split(',')[0]].filter(Boolean).join('<br>')}</span></div>`;};
   const tile=(s,clone)=>{
-    /* Guest list switched ON in the app always wins: the card goes to the form. */
-    const gl=s.guestlist,href=gl?'list/':s.tickets,tag=href?'a':'article',
-      link=gl?` href="list/"`:s.tickets?` href="${s.tickets}" target="_blank" rel="noopener"`:'',
-      cta=gl?'Guest list ✦':s.tickets?'Tickets ↗':'';
+    /* Cards only ever offer the guest list (when switched ON in the app). The "tickets" link of a
+       show is not shown here: it only goes in the "list full" email to guests who were declined. */
+    const gl=s.guestlist,tag=gl?'a':'article',link=gl?` href="list/"`:'',cta=gl?'Guest list ✦':'';
     return `<${tag} class="show"${link}${clone?' aria-hidden="true" tabindex="-1"':''}><figure>${s.image?`<img src="${s.image}" alt="${clone?'':`${s.title} — ${s.city}`}" loading="lazy">`:poster(s)}</figure>`+
       `<p class="show-date"><span><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></span>${cta?`<span class="show-tix">${cta}</span>`:''}</p><h3>${s.title.replace(/ · ([^·]+)$/,' · <span class="nowrap">$1</span>')}</h3><p class="show-city">${s.city}</p>`+
       /* Phones show the name and the venue on separate lines instead of the h3. */
