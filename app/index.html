@@ -48,7 +48,7 @@
 
   .flabel{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0 2px 6px}
   .export{display:none;align-items:center;gap:8px;margin:-2px 0 10px}
-  .export.on{display:flex}
+  .export.on{display:flex;flex-wrap:wrap}
   .export span{font-size:12px;color:var(--muted)}
   .nights{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 10px;padding:0 16px;scrollbar-width:none}
   .nights::-webkit-scrollbar{display:none}
@@ -177,6 +177,7 @@
   <div class="export" id="export">
     <button class="btn small yes" id="ex-pdf" type="button">Lista PDF</button>
     <button class="btn small ghost" id="ex-copy" type="button">Copiar lista</button>
+    <button class="btn small ghost" id="ex-csv" type="button" hidden>CSV</button>
     <span id="ex-count"></span>
   </div>
   <input id="q" type="search" placeholder="Buscar nombre, @instagram o email" autocomplete="off">
@@ -216,7 +217,7 @@ let guests = [], filter = "Pending", night = "", busy = false, quota = null;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 // Same night written "x" or "\u00d7" (older sign-ups) counts as one
-const nightOf = g => (g.event || "").split(" \u00b7 ")[0].replace(/\s\u00d7\s/g, " x ") || "Sin noche";
+const nightOf = g => { const p = (g.event || "").split(" \u00b7 "); return p[0] ? p[0].replace(/\s\u00d7\s/g, " x ") + (p[1] ? " \u00b7 " + p[1] : "") : "Sin noche"; };
 
 /* Talks to your Google Apps Script (same URL as the form on notjust.music/list). */
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbzezos-3isBv-jjVhDLWC-BQgry-fOSSzVqJ54uS6CjPT5HDeGW6JwTzRxVne_Tty9C/exec";
@@ -328,6 +329,9 @@ function drawList() {
 
   const inList = night ? partyGuests().length : 0;
   $("#export").classList.toggle("on", !!night);
+  const partner = night ? (guests.find(g => nightOf(g) === night) || {}).partner || "" : "";
+  $("#ex-csv").hidden = !partner;
+  $("#ex-csv").textContent = "CSV " + partner;
   $("#ex-count").textContent = night ? inList + " confirmado" + (inList === 1 ? "" : "s") : "";
 
   const q = $("#q").value.trim().toLowerCase().replace(/^@/, "");
@@ -345,7 +349,7 @@ function card(g) {
   const parts = (g.event || "").split(" \u00b7 ");
   const acts = g.status === "Pending"
     ? `<button class="btn no" data-act="Declined" data-row="${g.row}">Declinar</button><button class="btn yes" data-act="Confirmed" data-row="${g.row}">Confirmar</button>`
-    : (g.canResend ? `<button class="btn ghost" data-pass="${g.row}">Reenviar pase</button>` : "") +
+    : (g.canResend ? `<button class="btn ghost" data-pass="${g.row}">${g.partner ? "Reenviar email" : "Reenviar pase"}</button>` : "") +
       `<button class="btn ghost" data-act="Pending" data-row="${g.row}">Volver a pendiente</button>`;
   return `<div class="card" id="c${g.row}">
     <div class="row">
@@ -371,7 +375,8 @@ function ask(row, status) {
   const already = g.sent && g.sent.indexOf(status + " email") === 0;
   $("#sheet-title").innerHTML = yes ? "\u00bfDentro de <em>la lista?</em>" : "\u00bfEsta vez <em>no?</em>";
   $("#sheet-text").textContent = (g.name || g.email) + " \u00b7 " + nightOf(g) + ". " +
-    (already ? "Ya le lleg\u00f3 este correo, no se le enviar\u00e1 otra vez." : "Le llegar\u00e1 el correo de " + (yes ? "confirmado" : "lista llena") + " a " + g.email + ".");
+    (already ? "Ya le lleg\u00f3 este correo, no se le enviar\u00e1 otra vez." : "Le llegar\u00e1 el correo de " + (yes ? "confirmado" : "lista llena") + " a " + g.email + "." +
+    (yes && g.partner ? " Sin pase de NOTJUST: su ticket se lo manda " + g.partner + "." : ""));
   $("#sheet-ok").textContent = yes ? "Confirmar" : "Declinar";
   $("#sheet-ok").className = "btn " + (yes ? "yes" : "no");
   pending = { g, status };
@@ -535,12 +540,13 @@ document.addEventListener("click", e => {
   const one = e.target.closest("[data-pass]");
   if (!one) return;
   const g = guests.find(x => x.row === Number(one.dataset.pass));
-  if (!g || !confirm("\u00bfReenviar el pase a " + (g.name || g.email) + "?\nLe llega otra vez el correo de confirmado con su pase a " + g.email + ".")) return;
+  if (!g || !confirm(g.partner ? "\u00bfReenviar el email a " + (g.name || g.email) + "?\nLe llega otra vez el correo de confirmado (su ticket llega de " + g.partner + ") a " + g.email + "."
+    : "\u00bfReenviar el pase a " + (g.name || g.email) + "?\nLe llega otra vez el correo de confirmado con su pase a " + g.email + ".")) return;
   one.disabled = true;
   changes++; inFlight++; busy = true;
   api("sendPass", { row: g.row, email: g.email }).then(r => {
     inFlight--; busy = inFlight > 0; changes++;
-    toast(r.sent ? "Pase reenviado \u2726" : "No se pudo: l\u00edmite de correos de hoy");
+    toast(r.sent ? (g.partner ? "Email reenviado \u2726" : "Pase reenviado \u2726") : "No se pudo: l\u00edmite de correos de hoy");
     load(true);
   }, err => {
     inFlight--; busy = inFlight > 0; changes++; one.disabled = false;
@@ -555,7 +561,7 @@ function partyGuests() {
 }
 function partyInfo() {
   const g = guests.find(x => nightOf(x) === night), parts = (g ? g.event : "").split(" \u00b7 ");
-  return { name: night, when: parts[1] || "", venue: parts.length > 2 ? parts[parts.length - 1] : "" };
+  return { name: (parts[0] || night).replace(/\s\u00d7\s/g, " x "), when: parts[1] || "", venue: parts.length > 2 ? parts[parts.length - 1] : "" };
 }
 const listName = () => "NOTJUST guest list - " + night.replace(/[^A-Za-z0-9 \-]+/g, "").trim();
 const blackLogo = new Image();
@@ -631,6 +637,25 @@ function openPdf(blob) {
   const url = URL.createObjectURL(blob);
   const w = window.open(url, "_blank");
   if (!w) { const a = document.createElement("a"); a.href = url; a.download = listName() + ".pdf"; a.click(); }
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+/* CSV for the partner app (One For One imports it and sends the tickets): confirmed guests, name + email, A-Z */
+const CSV_COLUMNS = [["Name", g => g.name], ["Email", g => g.email]];
+$("#ex-csv").onclick = () => {
+  const L = partyGuests(), info = partyInfo();
+  if (!L.length) return toast("No hay confirmados en esta fiesta.");
+  const cell = v => { v = String(v == null ? "" : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const csv = "\ufeff" + [CSV_COLUMNS.map(c => c[0]).join(",")].concat(L.map(g => CSV_COLUMNS.map(c => cell(c[1](g))).join(","))).join("\r\n") + "\r\n";
+  const name = [info.name, info.when, info.venue].filter(Boolean).join(" - ").replace(/[^A-Za-z0-9 \-]+/g, "").trim() + " - guest list.csv";
+  const file = new File([csv], name, { type: "text/csv" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: name }).catch(err => { if (!err || err.name !== "AbortError") download(file); });
+  } else download(file);
+};
+function download(file) {
+  const url = URL.createObjectURL(file), a = document.createElement("a");
+  a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 </script>
