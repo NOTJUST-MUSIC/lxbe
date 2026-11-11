@@ -331,7 +331,8 @@ function drawList() {
   $("#export").classList.toggle("on", !!night);
   const partner = night ? (guests.find(g => nightOf(g) === night) || {}).partner || "" : "";
   $("#ex-csv").hidden = !partner;
-  $("#ex-csv").textContent = "CSV " + partner;
+  const fresh = night ? partyGuests().filter(g => !g.partnerSent).length : 0;
+  $("#ex-csv").textContent = fresh ? "CSV nuevos \u00b7 " + fresh : "CSV \u00b7 todo enviado";
   $("#ex-count").textContent = night ? inList + " confirmado" + (inList === 1 ? "" : "s") : "";
 
   const q = $("#q").value.trim().toLowerCase().replace(/^@/, "");
@@ -362,6 +363,7 @@ function card(g) {
     </div>
     ${g.event ? `<div class="night"><b>${esc(parts[0])}</b>${parts.length > 1 ? " \u00b7 " + esc(parts.slice(1).join(" \u00b7 ")) : ""}</div>` : ""}
     ${g.sent ? `<div class="sent">${esc(g.sent)}</div>` : ""}
+    ${g.partner && g.partnerSent ? `<div class="sent">Enviado a ${esc(g.partner)} \u00b7 ${esc(g.partnerSent)}</div>` : ""}
     <div class="acts">${acts}</div>
   </div>`;
 }
@@ -643,16 +645,39 @@ function openPdf(blob) {
 /* CSV for the partner app (One For One imports it and sends the tickets): confirmed guests, name + email, A-Z */
 const CSV_COLUMNS = [["Name", g => g.name], ["Email", g => g.email]];
 $("#ex-csv").onclick = () => {
-  const L = partyGuests(), info = partyInfo();
-  if (!L.length) return toast("No hay confirmados en esta fiesta.");
+  const all = partyGuests(), info = partyInfo();
+  if (!all.length) return toast("No hay confirmados en esta fiesta.");
+  const partner = all[0].partner || "One For One";
+  let L = all.filter(g => !g.partnerSent);
+  if (!L.length) {
+    if (!confirm("Ya se han enviado todos a " + partner + ".\n\u00bfSacar otra vez la lista completa (" + all.length + ")?")) return;
+    L = all;
+  }
+  const isNew = L !== all || all.every(g => !g.partnerSent);
   const cell = v => { v = String(v == null ? "" : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
   const csv = "\ufeff" + [CSV_COLUMNS.map(c => c[0]).join(",")].concat(L.map(g => CSV_COLUMNS.map(c => cell(c[1](g))).join(","))).join("\r\n") + "\r\n";
-  const name = [info.name, info.when, info.venue].filter(Boolean).join(" - ").replace(/[^A-Za-z0-9 \-]+/g, "").trim() + " - guest list.csv";
+  const stamp = new Date().toLocaleString("en-GB", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(/[^0-9]+/g, "-");
+  const name = [info.name, info.when, info.venue].filter(Boolean).join(" - ").replace(/[^A-Za-z0-9 \-]+/g, "").trim() +
+    (isNew ? " - new " : " - all ") + stamp + ".csv";
   const file = new File([csv], name, { type: "text/csv" });
+  const after = () => { if (isNew) setTimeout(() => markSent(L, partner), 300); };
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    navigator.share({ files: [file], title: name }).catch(err => { if (!err || err.name !== "AbortError") download(file); });
-  } else download(file);
+    navigator.share({ files: [file], title: name }).then(after, err => { if (!err || err.name !== "AbortError") { download(file); after(); } });
+  } else { download(file); after(); }
 };
+function markSent(L, partner) {
+  if (!confirm("\u00bfSe lo has mandado a " + partner + "?\nMarcar a estos " + L.length + " como enviados: el pr\u00f3ximo CSV solo tendr\u00e1 a los nuevos.")) return;
+  changes++; inFlight++; busy = true;
+  api("markPartner", { items: JSON.stringify(L.map(g => [g.row, g.email])) }).then(r => {
+    inFlight--; busy = inFlight > 0; changes++;
+    L.forEach(g => { g.partnerSent = r.label; });
+    render();
+    toast(r.marked + " marcado" + (r.marked === 1 ? "" : "s") + " como enviado" + (r.marked === 1 ? "" : "s") + " \u2726");
+  }, err => {
+    inFlight--; busy = inFlight > 0; changes++;
+    if (err.message !== "Locked") toast(err.message);
+  });
+}
 function download(file) {
   const url = URL.createObjectURL(file), a = document.createElement("a");
   a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
