@@ -643,7 +643,8 @@ function openPdf(blob) {
 }
 
 /* CSV for the partner app (One For One imports it and sends the tickets): confirmed guests, name + email, A-Z */
-const CSV_COLUMNS = [["Name", g => g.name], ["Email", g => g.email]];
+// Same columns as One For One's invites_template.csv (we don't ask for phones, so those stay empty)
+const CSV_COLUMNS = [["name", g => g.name], ["email", g => g.email], ["phone_country_code", () => ""], ["phone_number", () => ""]];
 $("#ex-csv").onclick = () => {
   const all = partyGuests(), info = partyInfo();
   if (!all.length) return toast("No hay confirmados en esta fiesta.");
@@ -655,7 +656,7 @@ $("#ex-csv").onclick = () => {
   }
   const isNew = L !== all || all.every(g => !g.partnerSent);
   const cell = v => { v = String(v == null ? "" : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-  const csv = "\ufeff" + [CSV_COLUMNS.map(c => c[0]).join(",")].concat(L.map(g => CSV_COLUMNS.map(c => cell(c[1](g))).join(","))).join("\r\n") + "\r\n";
+  const csv = [CSV_COLUMNS.map(c => c[0]).join(",")].concat(L.map(g => CSV_COLUMNS.map(c => cell(c[1](g))).join(","))).join("\n") + "\n";
   const stamp = new Date().toLocaleString("en-GB", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(/[^0-9]+/g, "-");
   const name = [info.name, info.when, info.venue].filter(Boolean).join(" - ").replace(/[^A-Za-z0-9 \-]+/g, "").trim() +
     (isNew ? " - new " : " - all ") + stamp + ".csv";
