@@ -134,10 +134,10 @@ if(location.hash)openPanel(location.hash);
 const shows=/*SHOWS-START*/[
   {"date":"2026-10-30","title":"The Players Club · Halloween Edition","city":"Barcelona, Spain","image":"assets/shows/players-club-halloween-2026.jpg","tickets":"https://oneforoneapp.com/events/yYqXqy"},
   {"date":"2026-11-14","end":"2026-11-15","title":"Soul Market BCN · Port Olímpic","city":"Barcelona, Spain","image":"assets/shows/soul-market-port-olimpic-2026.jpg"},
-  {"date":"2026-11-20","title":"ZayLune x Toca Rouge · Sala Bikini","city":"Barcelona, Spain","tickets":"https://site.fourvenues.com/es/paul-pfeiffer/events/the-white-affair-by-zaylune-x-toca-rouge-20-11-2026-FCZY"},
-  {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","time":"Daytime","tickets":"https://luma.com/k4k8goh5"},
-  {"date":"2026-11-21","title":"The Players Club · Bastian Beach","city":"Barcelona, Spain","hours":"21:00 – Late","image":"assets/shows/players-club-bastian-beach-2026.jpg","ticketsBy":"One For One","tickets":"https://oneforoneapp.com/events/gDpVJg"},
-  {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain","ticketsBy":"One For One"},
+  {"date":"2026-11-20","title":"ZayLune x Toca Rouge · Sala Bikini","city":"Barcelona, Spain","tickets":"https://site.fourvenues.com/es/paul-pfeiffer/events/the-white-affair-by-zaylune-x-toca-rouge-20-11-2026-FCZY","hours":"00:00 – 06:00"},
+  {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","time":"Daytime","tickets":"https://luma.com/k4k8goh5","hours":"11:00 – 17:00"},
+  {"date":"2026-11-21","title":"The Players Club · Bastian Beach","city":"Barcelona, Spain","hours":"19:00 – 03:00","image":"assets/shows/players-club-bastian-beach-2026.jpg","ticketsBy":"One For One","tickets":"https://oneforoneapp.com/events/gDpVJg"},
+  {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain","ticketsBy":"One For One","hours":"22:00 – 02:00"},
   {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"}
 ]/*SHOWS-END*/;
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
