@@ -136,7 +136,7 @@ const shows=/*SHOWS-START*/[
   {"date":"2026-11-14","end":"2026-11-15","title":"Soul Market BCN · Port Olímpic","city":"Barcelona, Spain","image":"assets/shows/soul-market-port-olimpic-2026.jpg"},
   {"date":"2026-11-20","title":"ZayLune x Toca Rouge · Sala Bikini","city":"Barcelona, Spain","tickets":"https://site.fourvenues.com/es/paul-pfeiffer/events/the-white-affair-by-zaylune-x-toca-rouge-20-11-2026-FCZY"},
   {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","time":"Daytime","tickets":"https://luma.com/k4k8goh5"},
-  {"date":"2026-11-21","title":"The Players Club · Bastian Beach","city":"Barcelona, Spain","image":"assets/shows/players-club-bastian-beach-2026.jpg","ticketsBy":"One For One","tickets":"https://oneforoneapp.com/events/gDpVJg"},
+  {"date":"2026-11-21","title":"The Players Club · Bastian Beach","city":"Barcelona, Spain","hours":"21:00 – Late","image":"assets/shows/players-club-bastian-beach-2026.jpg","ticketsBy":"One For One","tickets":"https://oneforoneapp.com/events/gDpVJg"},
   {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain","ticketsBy":"One For One"},
   {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"}
 ]/*SHOWS-END*/;
