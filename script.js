@@ -140,6 +140,8 @@ const shows=/*SHOWS-START*/[
   {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain","ticketsBy":"One For One","hours":"22:00 – 02:00"},
   {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"}
 ]/*SHOWS-END*/;
+/* Instagram broadcast channel link (e.g. https://ig.me/j/...). Read by the guest list form and its emails; empty = not shown. */
+const IG_CHANNEL=/*CHANNEL*/"";
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
 /* Upcoming shows also go to Google as events (structured data), so they can show up in search. */
 (function showsForGoogle(){
