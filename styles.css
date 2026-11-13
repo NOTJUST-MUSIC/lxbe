@@ -294,7 +294,8 @@ html.drawer-open {
 
 .stage-links {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 12px 24px;
   order: 2;
 }
 
@@ -1318,7 +1319,8 @@ a.show:hover h3 {
 
 .social {
   display: flex;
-  gap: 30px;
+  flex-wrap: wrap;
+  gap: 16px 30px;
   margin-top: 55px;
 }
 
