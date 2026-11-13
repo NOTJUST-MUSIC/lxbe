@@ -141,6 +141,27 @@ const shows=/*SHOWS-START*/[
   {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"}
 ]/*SHOWS-END*/;
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
+/* Upcoming shows also go to Google as events (structured data), so they can show up in search. */
+(function showsForGoogle(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const site='https://www.notjust.music/';
+  const events=shows.filter(s=>new Date((s.end||s.date)+'T00:00:00')>=today).map(s=>{
+    const p=s.title.split(' · '),place=s.venue&&!/restaurant/i.test(s.venue)?s.venue:(p[1]||p[0]);
+    const start=(s.hours||'').match(/^(\d{2}:\d{2})/);
+    const e={"@type":"MusicEvent","name":s.title+" — NOTJUST","startDate":s.date+(start?'T'+start[1]:''),
+      "eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode",
+      "location":{"@type":"Place","name":place,"address":{"@type":"PostalAddress","addressLocality":s.city.split(',')[0],"addressCountry":"ES"}},
+      "performer":{"@id":site+"#artist","@type":"MusicGroup","name":"NOTJUST"},"organizer":{"@type":"Organization","name":p[0]}};
+    if(s.end)e.endDate=s.end;
+    if(s.image)e.image=[site+s.image];
+    if(s.tickets)e.offers={"@type":"Offer","url":s.tickets,"availability":"https://schema.org/InStock"};
+    return e;
+  });
+  if(!events.length)return;
+  const el=document.createElement('script');el.type='application/ld+json';
+  el.textContent=JSON.stringify({"@context":"https://schema.org","@graph":events});
+  document.head.appendChild(el);
+})();
 function renderShows(){
   const today=new Date();today.setHours(0,0,0,0);
   const upcoming=shows.filter(s=>new Date((s.end||s.date)+'T00:00:00')>=today).sort((a,b)=>a.date.localeCompare(b.date));
