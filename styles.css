@@ -2182,6 +2182,14 @@ html {
     margin: 7px 0 3px;
     font-size: 9px;
     letter-spacing: .1em;
+    /* Narrow cards (4 on screen): "Guest list" drops under the date instead of
+       spilling onto the next card. */
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .show-tix {
+    letter-spacing: .04em;
   }
 
   .show h3 {
