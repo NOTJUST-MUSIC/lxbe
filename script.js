@@ -138,7 +138,8 @@ const shows=/*SHOWS-START*/[
   {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","time":"Daytime","tickets":"https://luma.com/k4k8goh5","hours":"11:00 – 17:00"},
   {"date":"2026-11-21","title":"The Players Club · Bastian Beach","city":"Barcelona, Spain","hours":"21:00 – Late","image":"assets/shows/players-club-bastian-beach-2026.jpg","ticketsBy":"One For One","tickets":"https://oneforoneapp.com/events/gDpVJg"},
   {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain","ticketsBy":"One For One","hours":"22:00 – 02:00"},
-  {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"}
+  {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"},
+  {"date":"2026-12-31","title":"The Players Club · New Year's Eve · Mr Porter, Hotel Sir Victor","city":"Barcelona, Spain","hours":"23:45 – 06:00","image":"assets/shows/players-club-nye-mr-porter-2026.jpg","ticketsBy":"One For One"}
 ]/*SHOWS-END*/;
 /* Instagram broadcast channel link (e.g. https://ig.me/j/...). Read by the guest list form and its emails; empty = not shown. */
 const IG_CHANNEL=/*CHANNEL*/"https://www.instagram.com/channel/34PHb1aQ37RDgs3W/";
@@ -148,7 +149,7 @@ const showsSection=document.querySelector('#shows'),showsTrack=document.querySel
   const today=new Date();today.setHours(0,0,0,0);
   const site='https://www.notjust.music/';
   const events=shows.filter(s=>new Date((s.end||s.date)+'T00:00:00')>=today).map(s=>{
-    const p=s.title.split(' · '),place=s.venue&&!/restaurant/i.test(s.venue)?s.venue:(p[1]||p[0]);
+    const p=s.title.split(' · '),place=s.venue&&!/restaurant/i.test(s.venue)?s.venue:p[p.length-1];
     const start=(s.hours||'').match(/^(\d{2}:\d{2})/);
     const e={"@type":"MusicEvent","name":s.title+" — NOTJUST","startDate":s.date+(start?'T'+start[1]:''),
       "eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode",
