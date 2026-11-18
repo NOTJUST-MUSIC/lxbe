@@ -137,7 +137,7 @@ const shows=/*SHOWS-START*/[
   {"date":"2026-11-20","title":"ZayLune x Toca Rouge · Sala Bikini","city":"Barcelona, Spain","tickets":"https://site.fourvenues.com/es/paul-pfeiffer/events/the-white-affair-by-zaylune-x-toca-rouge-20-11-2026-FCZY","hours":"00:00 – 06:00"},
   {"date":"2026-11-21","title":"The BCN Coffee Rave Festival Edition · Sea Sea Club","city":"Barcelona, Spain","image":"assets/shows/bcn-coffee-rave-festival-2026.jpg","time":"Daytime","tickets":"https://luma.com/k4k8goh5","hours":"11:00 – 17:00"},
   {"date":"2026-11-21","title":"The Players Club · Bastian Beach","city":"Barcelona, Spain","hours":"21:00 – Late","image":"assets/shows/players-club-bastian-beach-2026.jpg","ticketsBy":"One For One","tickets":"https://oneforoneapp.com/events/gDpVJg"},
-  {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain","ticketsBy":"One For One","hours":"22:00 – 02:00"},
+  {"date":"2026-11-27","title":"The Players Club · Barcelona Pool House","city":"Barcelona, Spain","image":"assets/shows/players-club-pool-house-2026.jpg","ticketsBy":"One For One","hours":"22:00 – 02:00"},
   {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"},
   {"date":"2026-12-31","title":"The Players Club · New Year's Eve · Mr Porter, Hotel Sir Victor","city":"Barcelona, Spain","hours":"23:45 – 06:00","image":"assets/shows/players-club-nye-mr-porter-2026.jpg","ticketsBy":"One For One"}
 ]/*SHOWS-END*/;
