@@ -175,7 +175,7 @@ $("nights").innerHTML = '<div class="night"><span class="n">Loading\u2026</span>
 const showTimes = fetch("../script.js?t=" + Date.now()).then(r => r.text()).then(js => {
   const out = {};
   JSON.parse(js.match(/\/\*SHOWS-START\*\/([\s\S]*?)\/\*SHOWS-END\*\//)[1])
-    .forEach(s => { out[s.date + " | " + s.title] = { time: s.time || "", hours: s.hours || "", by: s.ticketsBy || "", phone: !!s.phone }; });
+    .forEach(s => { out[s.date + " | " + s.title] = { time: s.time || "", hours: s.hours || "", by: s.ticketsBy || "", phone: !!s.phone, note: s.note || "" }; });
   // Instagram channel link (script.js: /*CHANNEL*/"..."): shown on the "Request received" screen when set
   const ch = (js.match(/\/\*CHANNEL\*\/"([^"]*)"/) || [])[1] || "";
   if (/^https:\/\/(ig\.me|(www\.)?instagram\.com)\//.test(ch)) { $("join-link").href = ch; $("join").classList.add("on"); }
@@ -207,6 +207,9 @@ Promise.all([fetch(ENDPOINT + "?action=nights").then(r => r.json()), showTimes])
         const b = document.createElement("span"); b.className = "w by";
         b.textContent = "Your ticket is sent by " + by + ". We share your name and email with them for it.";
         l.append(b);
+      }
+      if (extra.note) {   // e.g. a private night: shown under the night, in the same style
+        const o = document.createElement("span"); o.className = "w by"; o.textContent = extra.note; l.append(o);
       }
       return l;
     }));
