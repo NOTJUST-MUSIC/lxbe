@@ -65,13 +65,15 @@
   form{display:flex;flex-direction:column;gap:14px}
   label.f{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
   .input{position:relative}
-  input[type=text],input[type=email]{width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);
+  input[type=text],input[type=email],input[type=tel]{width:100%;background:var(--field);border:1px solid var(--line);color:var(--ink);
     font:inherit;font-size:16px;letter-spacing:0;text-transform:none;padding:14px 14px;border-radius:2px;outline:none;transition:border-color .15s}
   input:focus{border-color:var(--ink)}
   .at input{padding-left:30px}
   .at::before{content:"@";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px}
   .back{display:none;font-size:13px;color:var(--soft);margin:2px 0 -2px}
   .back.on{display:block}
+  #phone-box[hidden]{display:none}
+  #phone-why{margin:-2px 0 0;font-size:11.5px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400}
   .back small{display:block;font-size:11.5px;color:var(--muted);margin-top:3px}
   .back #forget,.back #forget:hover{display:inline;width:auto;min-height:0;margin:0 0 0 6px;background:none;border:0;border-radius:0;padding:0;font:inherit;font-size:12.5px;letter-spacing:0;text-transform:none;color:var(--muted);text-decoration:underline;cursor:pointer}
   .consent{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);margin-top:4px;cursor:pointer}
@@ -126,6 +128,9 @@
       <label class="f">Email
         <span class="input"><input type="email" name="email" autocomplete="email" required maxlength="120"></span>
       </label>
+      <label class="f" id="phone-box" hidden>Mobile <small id="phone-why">needed to reconfirm your spot</small>
+        <span class="input"><input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+34 600 000 000"></span>
+      </label>
       <label class="consent"><input type="checkbox" name="consent" required>
         <span>I'm happy for NOTJUST to use these details to manage this guest list and let me know about future nights. I can ask to be removed any time.</span>
       </label>
@@ -170,7 +175,7 @@ $("nights").innerHTML = '<div class="night"><span class="n">Loading\u2026</span>
 const showTimes = fetch("../script.js?t=" + Date.now()).then(r => r.text()).then(js => {
   const out = {};
   JSON.parse(js.match(/\/\*SHOWS-START\*\/([\s\S]*?)\/\*SHOWS-END\*\//)[1])
-    .forEach(s => { out[s.date + " | " + s.title] = { time: s.time || "", hours: s.hours || "", by: s.ticketsBy || "" }; });
+    .forEach(s => { out[s.date + " | " + s.title] = { time: s.time || "", hours: s.hours || "", by: s.ticketsBy || "", phone: !!s.phone }; });
   // Instagram channel link (script.js: /*CHANNEL*/"..."): shown on the "Request received" screen when set
   const ch = (js.match(/\/\*CHANNEL\*\/"([^"]*)"/) || [])[1] || "";
   if (/^https:\/\/(ig\.me|(www\.)?instagram\.com)\//.test(ch)) { $("join-link").href = ch; $("join").classList.add("on"); }
@@ -181,7 +186,7 @@ Promise.all([fetch(ENDPOINT + "?action=nights").then(r => r.json()), showTimes])
     app.classList.remove("loading");
     const live = r.open || (r.next ? [r.next] : []);
     if (!live.length) return app.classList.add("isclosed");
-    LIVE = live;
+    LIVE = live.map(ev => Object.assign(ev, { phone: !!(times[ev.id] || {}).phone }));
     const many = live.length > 1;
     $("nights-label").textContent = many ? "Pick your nights \u00b7 one or more" : "The night";
     $("nights").classList.toggle("single", !many);
@@ -205,11 +210,22 @@ Promise.all([fetch(ENDPOINT + "?action=nights").then(r => r.json()), showTimes])
       }
       return l;
     }));
+    needPhone();
   })
   .catch(() => {
     app.classList.remove("loading");
     $("nights").innerHTML = '<div class="night"><span class="n">Couldn\u2019t load the night. Refresh the page.</span></div>';
   });
+
+/* Some nights (marked "phone": true in the website's show list) also ask for a mobile number,
+   to reconfirm attendance. The field only appears when one of those nights is picked. */
+function needPhone() {
+  const on = picked().some(ev => ev.phone);
+  $("phone-box").hidden = !on;
+  $("f").phone.required = on;
+  return on;
+}
+$("nights").addEventListener("change", needPhone);
 
 /* Returning guests: their own details are remembered on their own phone (never sent anywhere else),
    so the next time the form is already filled in. "Not you?" clears them. */
@@ -221,14 +237,14 @@ const forget = () => { try { localStorage.removeItem(SAVED); } catch (_) {} };
   try { d = JSON.parse(localStorage.getItem(SAVED) || "null"); } catch (_) {}
   if (!d || !d.name || !d.email) return;
   const f = $("f");
-  f.name.value = d.name; f.instagram.value = d.ig || ""; f.email.value = d.email;
+  f.name.value = d.name; f.instagram.value = d.ig || ""; f.email.value = d.email; f.phone.value = d.phone || "";
   $("back-hi").textContent = "Welcome back, " + d.name.split(" ")[0] + " \u2726";
   $("back").classList.add("on");
 })();
 $("forget").onclick = () => {
   forget();
   const f = $("f");
-  f.name.value = f.instagram.value = f.email.value = "";
+  f.name.value = f.instagram.value = f.email.value = f.phone.value = "";
   $("back").classList.remove("on");
   f.name.focus();
 };
@@ -247,15 +263,17 @@ $("f").addEventListener("submit", async e => {
   if (!name) return err.textContent = "Add your name.";
   if (!/^[a-zA-Z0-9._]{1,30}$/.test(ig)) return err.textContent = "Check your Instagram handle.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err.textContent = "Check your email.";
+  const phone = f.phone.value.trim().replace(/[^\d+]/g, "");
+  if (needPhone() && !/^\+?\d{8,15}$/.test(phone)) return err.textContent = "Add your mobile number (with country code, e.g. +34).";
   if (!f.consent.checked) return err.textContent = "Tick the box so we can add you.";
 
   btn.disabled = true; btn.firstChild.textContent = "Sending ";
   try {
     // One request per night, so each night has its own row in your list
     for (const ev of nights) {
-      await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body: new URLSearchParams({ event: ev.event, name, instagram: "@" + ig, email }) });
+      await fetch(ENDPOINT, { method: "POST", mode: "no-cors", body: new URLSearchParams(Object.assign({ event: ev.event, name, instagram: "@" + ig, email }, ev.phone ? { phone } : {})) });
     }
-    remember({ name, ig, email });
+    remember({ name, ig, email, phone });
     $("done-msg").textContent = "Thanks " + name.split(" ")[0] + " \u2014 we've got your request for " +
       nights.map(ev => ev.name + ", " + ev.when).join(" and ") + ".";
     document.getElementById("app").classList.add("sent");

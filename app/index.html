@@ -357,7 +357,7 @@ function card(g) {
       <div class="av">${esc(ini)}</div>
       <div class="info">
         <div class="name">${esc(g.name || "Sin nombre")}</div>${ig}
-        <div class="meta"><a href="mailto:${esc(g.email)}">${esc(g.email)}</a>${g.when ? " \u00b7 " + esc(g.when) : ""}</div>
+        <div class="meta"><a href="mailto:${esc(g.email)}">${esc(g.email)}</a>${g.when ? " \u00b7 " + esc(g.when) : ""}</div>${g.phone ? `<div class="meta"><a href="tel:${esc(g.phone)}">${esc(g.phone)}</a></div>` : ""}
       </div>
       <span class="pill ${esc(g.status)}">${esc(LABEL[g.status])}</span>
     </div>
@@ -644,7 +644,16 @@ function openPdf(blob) {
 
 /* CSV for the partner app (One For One imports it and sends the tickets): confirmed guests, name + email, A-Z */
 // Same columns as One For One's invites_template.csv (we don't ask for phones, so those stay empty)
-const CSV_COLUMNS = [["name", g => g.name], ["email", g => g.email], ["phone_country_code", () => ""], ["phone_number", () => ""]];
+const CSV_COLUMNS = [["name", g => g.name], ["email", g => g.email], ["phone_country_code", g => splitPhone(g.phone)[0]], ["phone_number", g => splitPhone(g.phone)[1]]];
+// "+34600111222" -> ["34", "600111222"]; 9 digits without + count as Spain
+function splitPhone(ph) {
+  const d = String(ph || "").replace(/[^\d+]/g, "");
+  if (!d) return ["", ""];
+  if (!d.startsWith("+")) return d.length === 9 ? ["34", d] : ["", d];
+  const n = d.slice(1), cc = ["351", "353", "1", "7", "30", "31", "32", "33", "34", "39", "41", "43", "44", "45", "46", "47", "48", "49", "52", "54", "55", "57", "58", "61"]
+    .find(c => n.startsWith(c)) || "";
+  return [cc, n.slice(cc.length)];
+}
 $("#ex-csv").onclick = () => {
   const all = partyGuests(), info = partyInfo();
   if (!all.length) return toast("No hay confirmados en esta fiesta.");
