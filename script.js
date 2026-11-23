@@ -141,7 +141,7 @@ const shows=/*SHOWS-START*/[
   {"date":"2026-11-28","title":"Akiro","venue":"Japanese Restaurant","city":"Barcelona, Spain"},
   {"date":"2026-12-31","title":"The Players Club · New Year's Eve · Mr Porter, Hotel Sir Victor","city":"Barcelona, Spain","hours":"23:45 – 06:00","image":"assets/shows/players-club-nye-mr-porter-2026.jpg","ticketsBy":"One For One"},
   {"date":"2027-01-08","title":"TBA · SLS Dubai Hotel","city":"Dubai, UAE"},
-  {"date":"2027-01-16","title":"Coya Club Dubai · Four Seasons Resort Dubai at Jumeirah Beach","city":"Dubai, UAE","hours":"TBA"}
+  {"date":"2027-01-16","title":"TBA · Four Seasons Resort Dubai at Jumeirah Beach","city":"Dubai, UAE","hours":"TBA"}
 ]/*SHOWS-END*/;
 /* Instagram broadcast channel link (e.g. https://ig.me/j/...). Read by the guest list form and its emails; empty = not shown. */
 const IG_CHANNEL=/*CHANNEL*/"https://www.instagram.com/channel/34PHb1aQ37RDgs3W/";
