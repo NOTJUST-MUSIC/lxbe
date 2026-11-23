@@ -194,7 +194,7 @@ function renderShows(){
        show is not shown here: it only goes in the "list full" email to guests who were declined. */
     const gl=s.guestlist,tag=gl?'a':'article',link=gl?` href="list/"`:'',cta=gl?'Guest list ✦':'';
     return `<${tag} class="show"${link}${clone?' aria-hidden="true" tabindex="-1"':''}><figure>${s.image?`<img src="${s.image}" alt="${clone?'':`${s.title} — ${s.city}`}" loading="lazy">`:poster(s)}</figure>`+
-      `<p class="show-date"><span><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></span>${cta?`<span class="show-tix">${cta}</span>`:''}</p><h3>${s.title.replace(/ · ([^·]+)$/,' · <span class="nowrap">$1</span>')}</h3><p class="show-city">${s.city}</p>`+
+      `<p class="show-date"><span><span class="date-full">${when(s)}</span><span class="date-short">${whenShort(s)}</span></span>${cta?`<span class="show-tix">${cta}</span>`:''}</p><h3>${s.title.replace(/ · ([^·]+)$/,(m,v)=>v.length>22?m:' · <span class="nowrap">'+v+'</span>')}</h3><p class="show-city">${s.city}</p>`+
       /* Phones show the name and the venue on separate lines instead of the h3. */
       `<p class="show-name" aria-hidden="true">${name(s)}</p><p class="show-venue" aria-hidden="true">${venue(s)}</p></${tag}>`;
   };
