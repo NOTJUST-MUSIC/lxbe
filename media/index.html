@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your POV — NOTJUST</title>
+<link rel="canonical" href="https://www.notjust.music/media/">
+<meta name="description" content="Were you there? Share your videos and photos from the night.">
+<meta property="og:title" content="Your POV — NOTJUST">
+<meta property="og:description" content="Were you there? Share your videos and photos from the night.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.notjust.music/media/">
+<meta property="og:image" content="https://www.notjust.music/assets/og-guest-list-square.jpg?v=2">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="icon" href="../assets/notjust-favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/notjust-apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0b; --ink:#f3ede2; --muted:#8f8a82; --line:#2a2826;
+    --red:#d62a1e; --field:#141312;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink)}
+  body{font-family:"Inter Tight",system-ui,sans-serif;min-height:100svh;display:flex;flex-direction:column;
+    -webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{width:100%;max-width:460px;margin:0 auto;padding:40px 20px 32px;flex:1;display:flex;flex-direction:column}
+  .hero{margin:0 0 28px}
+  .kicker{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .kicker .star{color:var(--red);font-size:16px;letter-spacing:0;line-height:1}
+  h1{font-family:"Instrument Serif",serif;font-weight:400;font-size:clamp(48px,14vw,68px);line-height:.95;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--red)}
+  h1 .h1-logo{display:inline-block;width:clamp(170px,52vw,230px);height:auto;margin-bottom:.12em;vertical-align:bottom}
+  .lede{margin-top:18px;color:#c9c3b8;font-size:16px;max-width:36ch}
+  .f{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .nights{display:flex;flex-direction:column;border-top:1px solid var(--line);margin-bottom:22px}
+  .night{display:grid;grid-template-columns:18px 1fr auto;gap:2px 12px;align-items:center;padding:14px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+  .night input{grid-row:span 2;accent-color:var(--red);width:16px;height:16px;margin:0}
+  .night .n{font-weight:500;font-size:15px}
+  .night .d{font-size:13px;text-align:right;white-space:nowrap}
+  .night .w{grid-column:2 / 4;font-size:12.5px;color:var(--muted)}
+  .night:has(input:checked) .n{color:var(--red)}
+  .steps{list-style:none;counter-reset:s;margin:0 0 22px;border-top:1px solid var(--line)}
+  .steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px;color:#c9c3b8}
+  .steps li::before{content:"0" counter(s);font-size:12px;letter-spacing:.16em;color:var(--red);padding-top:2px}
+  .steps b{color:var(--ink);font-weight:500}
+  a.go{display:flex;justify-content:center;gap:10px;align-items:center;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:600;font-size:14px;
+    letter-spacing:.16em;text-transform:uppercase;padding:17px;border-radius:2px;transition:background .15s,color .15s}
+  a.go:hover{background:var(--red);color:var(--ink)}
+  a.go[aria-disabled=true]{opacity:.45;pointer-events:none}
+  .note{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+  .pro{margin-top:30px;padding-top:20px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+  .pro b{color:var(--ink);font-weight:500}
+  .soon{display:none;color:#c9c3b8;font-size:15px}
+  .isoff .box{display:none}.isoff .soon{display:block}
+  footer{padding:28px 20px;text-align:center;font-family:"Instrument Serif",serif;font-style:italic;color:var(--muted);font-size:17px}
+  footer span{color:var(--red);font-style:normal}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <section class="hero">
+    <div class="kicker"><span>Your POV</span><span class="star" aria-hidden="true">✦</span></div>
+    <h1 translate="no" class="notranslate"><img class="h1-logo" src="../assets/NOTJUST_logo_blanco.png" alt="Not just"><br>your <em>POV.</em></h1>
+    <p class="lede">You were there. Share your videos and photos from the night &mdash; the best ones get reposted, with credit.</p>
+  </section>
+
+  <div class="box">
+    <div class="f">Which night?</div>
+    <div class="nights" id="nights" role="radiogroup"></div>
+    <ol class="steps">
+      <li><span>Tap the button: it opens our secure upload page on <b>Dropbox</b>. No account needed.</span></li>
+      <li><span>Add as many videos and photos as you like, in full quality. Big files are fine.</span></li>
+      <li><span>Want credit? Write your <b>@instagram</b> next to your name.</span></li>
+    </ol>
+    <a class="go" id="go" href="#" target="_blank" rel="noopener" aria-disabled="true">Upload your POV <span>&#x2197;</span></a>
+    <p class="note">By uploading you're OK with NOTJUST sharing your content on its channels, with credit.</p>
+    <p class="pro">Venue, club or videographer? <b>Folders, ZIP and RAR files</b> work here too.</p>
+  </div>
+
+  <div class="soon">Uploads open soon. Follow <a href="https://instagram.com/notjusttt" style="color:var(--ink)">@notjusttt</a>.</div>
+</div>
+<footer translate="no" class="notranslate">it was never <span>just</span> music</footer>
+
+<script>
+/* Nights from the website's show list (script.js): the last 30 days, newest first, plus "Another night".
+   Uploads go to Dropbox file requests: MEDIA_UPLOAD (/*MEDIA*/ in script.js) for all, or a show's own "media" link. */
+const $ = id => document.getElementById(id);
+const DAYS = 30;
+const iso = d => d.toISOString().slice(0, 10);
+const okLink = u => /^https:\/\/(www\.)?dropbox\.com\//.test(u || "") ? u : "";
+
+fetch("../script.js?t=" + Date.now()).then(r => r.text()).then(js => {
+  const all = okLink((js.match(/\/\*MEDIA\*\/"([^"]*)"/) || [])[1]);
+  const shows = JSON.parse(js.match(/\/\*SHOWS-START\*\/([\s\S]*?)\/\*SHOWS-END\*\//)[1]);
+  const now = new Date(), today = iso(now), from = iso(new Date(now - DAYS * 864e5));
+  const nights = shows.filter(s => s.date <= today && (s.end || s.date) >= from && !/^TBA\b/.test(s.title))
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map(s => {
+      const p = s.title.split(" · ");
+      const d = new Date(s.date + "T12:00:00Z");
+      return { name: p[0], where: [s.venue || p.slice(1).join(" · "), (s.city || "").split(",")[0]].filter(Boolean).join(" · "),
+        when: d.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", timeZone: "UTC" }),
+        link: okLink(s.media) || all };
+    }).filter(n => n.link);
+  if (all) nights.push({ name: "Another night", where: "Older nights, private events, anything else", when: "", link: all });
+  if (!nights.length) return document.getElementById("app").classList.add("isoff");
+
+  $("nights").replaceChildren(...nights.map((n, i) => {
+    const l = document.createElement("label"); l.className = "night";
+    const r = document.createElement("input"); r.type = "radio"; r.name = "night"; r.value = i; r.checked = i === 0;
+    const a = document.createElement("span"); a.className = "n"; a.textContent = n.name;
+    const b = document.createElement("span"); b.className = "d"; b.textContent = n.when;
+    const c = document.createElement("span"); c.className = "w"; c.textContent = n.where;
+    l.append(r, a, b, c);
+    return l;
+  }));
+  const pick = () => {
+    const n = nights[+document.querySelector("#nights input:checked").value];
+    $("go").href = n.link; $("go").setAttribute("aria-disabled", "false");
+  };
+  $("nights").addEventListener("change", pick);
+  pick();
+}).catch(() => document.getElementById("app").classList.add("isoff"));
+</script>
+</body>
+</html>
