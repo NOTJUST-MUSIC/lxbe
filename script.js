@@ -146,8 +146,8 @@ const shows=/*SHOWS-START*/[
 /* Instagram broadcast channel link (e.g. https://ig.me/j/...). Read by the guest list form and its emails; empty = not shown. */
 const IG_CHANNEL=/*CHANNEL*/"https://www.instagram.com/channel/34PHb1aQ37RDgs3W/";
 /* "Your POV" page (notjust.music/media): your Dropbox file request link, where guests upload their
-   videos and photos. A show can have its own link too ("media":"https://www.dropbox.com/request/...")
-   so its uploads land in their own folder. Empty = the page says uploads open soon. */
+   videos and photos.
+   Empty = the page says uploads open soon. */
 const MEDIA_UPLOAD=/*MEDIA*/"";
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
 /* Upcoming shows also go to Google as events (structured data), so they can show up in search. */

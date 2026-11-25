@@ -69,15 +69,8 @@
   </section>
 
   <div class="box">
-    <div class="f">Which night?</div>
-    <div class="nights" id="nights" role="radiogroup"></div>
-    <ol class="steps">
-      <li><span>Tap the button: it opens our secure upload page on <b>Dropbox</b>. No account needed.</span></li>
-      <li><span>Add as many videos and photos as you like, in full quality. Big files are fine.</span></li>
-      <li><span>Want credit? Write your <b>@instagram</b> next to your name.</span></li>
-    </ol>
-    <a class="go" id="go" href="#" target="_blank" rel="noopener" aria-disabled="true">Upload your POV <span>&#x2197;</span></a>
-    <p class="note">By uploading you're OK with NOTJUST sharing your content on its channels, with credit.</p>
+    <a class="go" id="go" href="#" target="_blank" rel="noopener" aria-disabled="true">Upload your videos <span>&#x2197;</span></a>
+    <p class="note">Full quality, no account needed. Want credit? Add your @instagram next to your name.</p>
     <p class="pro">Venue, club or videographer? <b>Folders, ZIP and RAR files</b> work here too.</p>
   </div>
 
@@ -86,44 +79,12 @@
 <footer translate="no" class="notranslate">it was never <span>just</span> music</footer>
 
 <script>
-/* Nights from the website's show list (script.js): the last 30 days, newest first, plus "Another night".
-   Uploads go to Dropbox file requests: MEDIA_UPLOAD (/*MEDIA*/ in script.js) for all, or a show's own "media" link. */
-const $ = id => document.getElementById(id);
-const DAYS = 30;
-const iso = d => d.toISOString().slice(0, 10);
-const okLink = u => /^https:\/\/(www\.)?dropbox\.com\//.test(u || "") ? u : "";
-
+// One button: opens the Dropbox file request set in script.js (MEDIA_UPLOAD). Empty = "Uploads open soon".
 fetch("../script.js?t=" + Date.now()).then(r => r.text()).then(js => {
-  const all = okLink((js.match(/\/\*MEDIA\*\/"([^"]*)"/) || [])[1]);
-  const shows = JSON.parse(js.match(/\/\*SHOWS-START\*\/([\s\S]*?)\/\*SHOWS-END\*\//)[1]);
-  const now = new Date(), today = iso(now), from = iso(new Date(now - DAYS * 864e5));
-  const nights = shows.filter(s => s.date <= today && (s.end || s.date) >= from && !/^TBA\b/.test(s.title))
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .map(s => {
-      const p = s.title.split(" · ");
-      const d = new Date(s.date + "T12:00:00Z");
-      return { name: p[0], where: [s.venue || p.slice(1).join(" · "), (s.city || "").split(",")[0]].filter(Boolean).join(" · "),
-        when: d.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", timeZone: "UTC" }),
-        link: okLink(s.media) || all };
-    }).filter(n => n.link);
-  if (all) nights.push({ name: "Another night", where: "Older nights, private events, anything else", when: "", link: all });
-  if (!nights.length) return document.getElementById("app").classList.add("isoff");
-
-  $("nights").replaceChildren(...nights.map((n, i) => {
-    const l = document.createElement("label"); l.className = "night";
-    const r = document.createElement("input"); r.type = "radio"; r.name = "night"; r.value = i; r.checked = i === 0;
-    const a = document.createElement("span"); a.className = "n"; a.textContent = n.name;
-    const b = document.createElement("span"); b.className = "d"; b.textContent = n.when;
-    const c = document.createElement("span"); c.className = "w"; c.textContent = n.where;
-    l.append(r, a, b, c);
-    return l;
-  }));
-  const pick = () => {
-    const n = nights[+document.querySelector("#nights input:checked").value];
-    $("go").href = n.link; $("go").setAttribute("aria-disabled", "false");
-  };
-  $("nights").addEventListener("change", pick);
-  pick();
+  const link = (js.match(/\/\*MEDIA\*\/"([^"]*)"/) || [])[1] || "";
+  if (!/^https:\/\/(www\.)?dropbox\.com\//.test(link)) throw 0;
+  const go = document.getElementById("go");
+  go.href = link; go.setAttribute("aria-disabled", "false");
 }).catch(() => document.getElementById("app").classList.add("isoff"));
 </script>
 </body>
