@@ -148,7 +148,7 @@ const IG_CHANNEL=/*CHANNEL*/"https://www.instagram.com/channel/34PHb1aQ37RDgs3W/
 /* "Your POV" page (notjust.music/media): your Dropbox file request link, where guests upload their
    videos and photos.
    Empty = the page says uploads open soon. */
-const MEDIA_UPLOAD=/*MEDIA*/"";
+const MEDIA_UPLOAD=/*MEDIA*/"https://www.dropbox.com/request/vclc0kh4t7i1q52eu5an";
 const showsSection=document.querySelector('#shows'),showsTrack=document.querySelector('#showsTrack'),stageCue=document.querySelector('.stage-cue');
 /* Upcoming shows also go to Google as events (structured data), so they can show up in search. */
 (function showsForGoogle(){
