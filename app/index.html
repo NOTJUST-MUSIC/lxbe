@@ -76,6 +76,14 @@
   .pill.Pending{color:var(--red);border-color:rgba(214,42,30,.45)}
   .pill.Confirmed{color:#0b0b0b;background:var(--ink);border-color:var(--ink)}
   .pill.Declined{color:var(--muted)}
+  .rc{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-size:14px}
+  .rc input{appearance:none;-webkit-appearance:none;flex:none;width:44px;height:26px;border-radius:999px;background:#2a2826;position:relative;cursor:pointer;transition:background .2s;margin:0}
+  .rc input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--ink);transition:transform .2s}
+  .rc input:checked{background:#2fa84f}
+  .rc input:checked::after{transform:translateX(18px)}
+  .rc span{flex:1}
+  .rc small{display:block;color:var(--muted);font-size:12px}
+  .rc.on{border-color:rgba(47,168,79,.6)}
   .sent{margin-top:8px;font-size:12px;color:var(--muted)}
   .sent::before{content:"\2726  ";color:var(--red)}
   .acts{display:flex;gap:8px;margin-top:12px}
@@ -362,6 +370,8 @@ function card(g) {
       <span class="pill ${esc(g.status)}">${esc(LABEL[g.status])}</span>
     </div>
     ${g.event ? `<div class="night"><b>${esc(parts[0])}</b>${parts.length > 1 ? " \u00b7 " + esc(parts.slice(1).join(" \u00b7 ")) : ""}</div>` : ""}
+    ${g.recheck && g.status === "Confirmed" ? `<label class="rc${g.reconfirmed ? " on" : ""}"><input type="checkbox" data-rc="${g.row}"${g.reconfirmed ? " checked" : ""}>
+      <span>${g.reconfirmed ? "Reconfirmado \u2713" : "Sin reconfirmar"}<small>${g.reconfirmed ? esc(g.reconfirmed.replace(/^Yes \u00b7 /, "")) : "Ll\u00e1male y act\u00edvalo cuando te diga que viene"}</small></span></label>` : ""}
     ${g.sent ? `<div class="sent">${esc(g.sent)}</div>` : ""}
     ${g.partner && g.partnerSent ? `<div class="sent">Enviado a ${esc(g.partner)} \u00b7 ${esc(g.partnerSent)}</div>` : ""}
     <div class="acts">${acts}</div>
@@ -553,6 +563,26 @@ document.addEventListener("click", e => {
   }, err => {
     inFlight--; busy = inFlight > 0; changes++; one.disabled = false;
     if (err.message !== "Locked") toast(err.message);
+  });
+});
+
+/* Reconfirmed switch (nights that ask for a mobile): you called them and they're coming */
+document.addEventListener("change", e => {
+  const box = e.target.closest("[data-rc]");
+  if (!box) return;
+  const g = guests.find(x => x.row === Number(box.dataset.rc));
+  if (!g) return;
+  const before = g.reconfirmed, on = box.checked;
+  g.reconfirmed = on ? "Yes \u00b7 ahora" : ""; render();
+  changes++; inFlight++; busy = true;
+  api("reconfirm", { row: g.row, email: g.email, on: on }).then(r => {
+    inFlight--; busy = inFlight > 0; changes++;
+    g.reconfirmed = r.reconfirmed; render();
+    toast(on ? "Reconfirmado \u2713" : "Quitado");
+  }, err => {
+    inFlight--; busy = inFlight > 0; changes++;
+    g.reconfirmed = before; render();
+    if (err.message !== "Locked") toast("No se guard\u00f3: " + err.message);
   });
 });
 
